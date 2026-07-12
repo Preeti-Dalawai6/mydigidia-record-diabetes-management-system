@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Settings – MyDigiDia Record</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+/* ═══════════════ ROOT VARIABLES ═══════════════ */
+:root {
+  --primary:       #7b1e2b;
+  --primary-light: #b23a48;
+  --primary-pale:  #fdf7f7;
+  --accent:        #a71d31;
+  --accent2:       #e05470;
+  --bg:            #f5edee;
+  --card-bg:       #ffffff;
+  --border:        #e8d8da;
+  --text:          #2a1a1d;
+  --text-muted:    #7a5a60;
+  --toggle-off:    #d1b8bc;
+  --toggle-on:     #a71d31;
+  --shadow-sm:     0 2px 10px rgba(123,30,43,.08);
+  --shadow-md:     0 6px 28px rgba(123,30,43,.13);
+  --radius:        16px;
+  --radius-sm:     10px;
+}
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Segoe UI',Nunito,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+body.theme-dark{
+  --bg:#191416;
+  --card-bg:#241b1e;
+  --border:#4a3036;
+  --text:#f9eef0;
+  --text-muted:#caaeb4;
+  --primary-pale:#2c2024;
+  --toggle-off:#685057;
+  --shadow-sm:0 2px 10px rgba(0,0,0,.24);
+  --shadow-md:0 6px 28px rgba(0,0,0,.3);
+}
+
+/* ── NAVBAR ── */
+nav{width:100%;background:linear-gradient(90deg,#7b1e2b,#b23a48);padding:18px 50px;display:flex;justify-content:space-between;align-items:center;color:#fff;box-shadow:0 4px 15px rgba(0,0,0,.12);position:sticky;top:0;z-index:200;}
+nav .logo{font-size:24px;font-weight:800;display:flex;align-items:center;gap:9px;}
+nav ul{display:flex;list-style:none;gap:20px;}
+nav ul li a{text-decoration:none;color:#fff;font-size:15px;padding:7px 13px;border-radius:9px;transition:.2s;display:flex;align-items:center;gap:6px;font-weight:600;}
+nav ul li a:hover,nav ul li a.active{background:rgba(255,255,255,.2);}
+
+/* ── PAGE HEADER ── */
+.page-header{background:linear-gradient(135deg,#7b1e2b 0%,#b23a48 60%,#d4596e 100%);padding:36px 50px 32px;color:#fff;position:relative;overflow:hidden;}
+.page-header::after{content:'';position:absolute;bottom:-30px;right:-30px;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,.06);pointer-events:none;}
+.page-header::before{content:'';position:absolute;top:-60px;right:120px;width:300px;height:300px;border-radius:50%;background:rgba(255,255,255,.04);pointer-events:none;}
+.page-header .breadcrumb{display:flex;align-items:center;gap:8px;font-size:13px;opacity:.75;margin-bottom:14px;}
+.page-header .breadcrumb a{color:#fff;text-decoration:none;}
+.page-header .breadcrumb a:hover{text-decoration:underline;}
+.page-header h1{font-size:30px;font-weight:800;display:flex;align-items:center;gap:12px;margin-bottom:6px;}
+.page-header p{font-size:15px;opacity:.82;font-weight:600;}
+
+/* ── LAYOUT ── */
+.settings-layout{max-width:1100px;margin:32px auto 60px;padding:0 24px;}
+.settings-topbar{display:grid;grid-template-columns:1fr auto;gap:20px;align-items:start;margin-bottom:26px;}
+
+/* ── SIDEBAR CARD (now horizontal nav bar at top) ── */
+.sidebar-card{background:var(--card-bg);border-radius:var(--radius);box-shadow:var(--shadow-md);overflow:hidden;border:1px solid var(--border);}
+.sidebar-card .sidebar-header{background:linear-gradient(135deg,#7b1e2b,#b23a48);padding:14px 20px;color:#fff;}
+.sidebar-card .sidebar-header h3{font-size:14px;font-weight:800;display:flex;align-items:center;gap:8px;}
+.sidebar-nav{display:flex;flex-wrap:wrap;}
+.sidebar-nav a{display:flex;align-items:center;gap:8px;padding:11px 16px;text-decoration:none;color:var(--text-muted);font-size:13px;font-weight:700;transition:.18s;border-bottom:3px solid transparent;white-space:nowrap;}
+.sidebar-nav a:hover,.sidebar-nav a.active{background:#fdf2f3;color:var(--primary);border-bottom-color:var(--primary);}
+.sidebar-nav a i{font-size:13px;color:var(--accent2);}
+.sidebar-nav a:hover i,.sidebar-nav a.active i{color:var(--primary);}
+
+/* ── USER QUICK CARD (compact horizontal, top-right) ── */
+.user-quick-card{background:var(--card-bg);border-radius:var(--radius);box-shadow:var(--shadow-sm);border:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;gap:14px;min-width:210px;}
+.user-quick-card .avatar{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#7b1e2b,#b23a48);display:flex;align-items:center;justify-content:center;font-size:19px;color:#fff;box-shadow:0 4px 14px rgba(123,30,43,.3);flex-shrink:0;}
+.user-quick-card .user-info{display:flex;flex-direction:column;gap:4px;}
+.user-quick-card .user-name{font-size:14px;font-weight:800;color:var(--primary);}
+.user-quick-card .user-role{font-size:11px;color:var(--text-muted);font-weight:600;background:#fdf2f3;padding:2px 9px;border-radius:20px;display:inline-block;}
+
+/* ── MAIN ── */
+.settings-main{display:flex;flex-direction:column;gap:22px;}
+
+/* ── SECTION CARD ── */
+.section-card{background:var(--card-bg);border-radius:var(--radius);box-shadow:var(--shadow-sm);border:1px solid var(--border);overflow:hidden;transition:box-shadow .2s;}
+.section-card:hover{box-shadow:var(--shadow-md);}
+.section-card .card-header{display:flex;align-items:center;gap:14px;padding:18px 26px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,#fdf7f7 0%,#fff 100%);}
+.card-header .icon-wrap{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#7b1e2b,#b23a48);display:flex;align-items:center;justify-content:center;color:#fff;font-size:17px;flex-shrink:0;box-shadow:0 3px 10px rgba(123,30,43,.25);}
+.card-header h2{font-size:17px;font-weight:800;color:var(--primary);margin-bottom:2px;}
+.card-header p{font-size:12px;color:var(--text-muted);font-weight:600;}
+.card-body{padding:22px 26px;}
+
+/* ── FIELDS ── */
+.field-group{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:8px;}
+.field{display:flex;flex-direction:column;gap:6px;}
+.field label{font-size:13px;font-weight:800;color:var(--primary);display:flex;align-items:center;gap:6px;}
+.field label i{color:var(--accent2);font-size:12px;}
+.field select,.field input[type="text"],.field input[type="email"],.field input[type="tel"]{padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;font-family:inherit;font-weight:600;color:var(--text);background:#fff;transition:.18s;outline:none;}
+.field select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath fill='%237b1e2b' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;background-color:#fff;padding-right:32px;}
+.field select:focus,.field input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(123,30,43,.1);}
+
+/* ── TOGGLE ROWS ── */
+.toggle-list{display:flex;flex-direction:column;gap:0;}
+.toggle-row{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid #f5eaeb;}
+.toggle-row:last-child{border-bottom:none;}
+.toggle-info{display:flex;align-items:center;gap:13px;}
+.toggle-info .t-icon{width:36px;height:36px;border-radius:10px;background:#fdf2f3;display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--accent);flex-shrink:0;transition:.2s;}
+.toggle-row .t-text strong{display:block;font-size:14px;font-weight:800;color:var(--text);}
+.toggle-row .t-text span{font-size:12px;color:var(--text-muted);font-weight:600;}
+
+/* ── ANIMATED TOGGLE SWITCH ── */
+.toggle-switch{position:relative;width:52px;height:28px;flex-shrink:0;}
+.toggle-switch input{display:none;}
+.toggle-switch .knob{position:absolute;inset:0;background:var(--toggle-off);border-radius:28px;cursor:pointer;transition:.28s cubic-bezier(.4,0,.2,1);}
+.toggle-switch .knob::after{content:'';position:absolute;width:22px;height:22px;border-radius:50%;background:#fff;top:3px;left:3px;transition:.28s cubic-bezier(.4,0,.2,1);box-shadow:0 2px 6px rgba(0,0,0,.22);}
+.toggle-switch input:checked + .knob{background:var(--toggle-on);}
+.toggle-switch input:checked + .knob::after{transform:translateX(24px);}
+
+/* ── STATUS BADGES ── */
+.status-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:20px;font-size:12px;font-weight:700;}
+.status-badge.connected{background:#dcfce7;color:#166534;}
+.status-badge.synced{background:#dbeafe;color:#1e40af;}
+.status-badge.warning{background:#fef9c3;color:#854d0e;}
+
+/* ── INFO GRID ── */
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px;}
+.info-item{background:#fdf7f7;border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;display:flex;align-items:center;gap:12px;}
+.info-item .ii-icon{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#7b1e2b,#b23a48);display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;flex-shrink:0;}
+.info-item .ii-text .label{font-size:11px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
+.info-item .ii-text .value{font-size:14px;font-weight:800;color:var(--primary);margin-top:2px;}
+
+/* ── ACCOUNT BUTTONS ── */
+.account-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px;}
+.action-btn{display:flex;align-items:center;gap:10px;padding:14px 18px;border-radius:var(--radius-sm);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;border:none;text-decoration:none;transition:.18s;}
+.action-btn:hover{transform:translateY(-2px);}
+.action-btn.outline{background:#fff;border:2px solid var(--border);color:var(--primary);}
+.action-btn.outline:hover{border-color:var(--primary);background:#fdf2f3;}
+.action-btn.primary-btn{background:linear-gradient(135deg,#7b1e2b,#b23a48);color:#fff;box-shadow:0 4px 14px rgba(123,30,43,.28);}
+.action-btn.primary-btn:hover{box-shadow:0 6px 20px rgba(123,30,43,.36);}
+.action-btn.warning-btn{background:#fff8f8;border:2px solid #e5c4c7;color:#c0392b;}
+.action-btn.warning-btn:hover{background:#fee2e2;border-color:#c0392b;}
+.action-btn.danger-btn{background:#c0392b;color:#fff;box-shadow:0 4px 14px rgba(192,57,43,.25);}
+.action-btn.danger-btn:hover{background:#a93226;box-shadow:0 6px 20px rgba(192,57,43,.35);}
+.action-btn i{font-size:16px;}
+
+/* ── UNIT SELECTOR ── */
+.unit-selector{display:flex;gap:10px;margin-top:4px;}
+.unit-btn{flex:1;padding:11px 0;border:2px solid var(--border);border-radius:var(--radius-sm);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;background:#fff;color:var(--text-muted);transition:.18s;text-align:center;}
+.unit-btn.active{border-color:var(--primary);background:#fdf2f3;color:var(--primary);}
+.unit-btn:hover{border-color:var(--primary-light);color:var(--primary);}
+
+/* ── DIVIDER ── */
+.divider{height:1px;background:var(--border);margin:16px 0;}
+
+/* ── STICKY SAVE BAR ── */
+.sticky-save{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1.5px solid var(--border);padding:14px 40px;display:flex;align-items:center;justify-content:space-between;z-index:150;box-shadow:0 -4px 24px rgba(123,30,43,.1);transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);}
+.sticky-save.visible{transform:translateY(0);}
+.sticky-save .save-msg{font-size:14px;color:var(--text-muted);font-weight:700;display:flex;align-items:center;gap:8px;}
+.sticky-save .save-msg i{color:var(--accent);}
+.save-btn{display:flex;align-items:center;gap:9px;padding:12px 30px;background:linear-gradient(135deg,#7b1e2b,#b23a48);color:#fff;border:none;border-radius:var(--radius-sm);font-size:15px;font-weight:800;font-family:inherit;cursor:pointer;box-shadow:0 4px 18px rgba(123,30,43,.35);transition:.2s;}
+.save-btn:hover{transform:translateY(-2px);box-shadow:0 7px 24px rgba(123,30,43,.45);}
+
+/* ── TOAST ── */
+.toast-container{position:fixed;top:82px;right:26px;display:flex;flex-direction:column;gap:10px;z-index:9999;}
+.toast{display:flex;align-items:center;gap:12px;padding:14px 20px;border-radius:12px;font-size:14px;font-weight:700;min-width:280px;box-shadow:0 6px 24px rgba(0,0,0,.15);animation:toastIn .3s cubic-bezier(.4,0,.2,1);border-left:4px solid transparent;background:#fff;}
+.toast.success{border-left-color:#2e7d52;color:#166534;}
+.toast.error{border-left-color:#c0392b;color:#c0392b;}
+.toast i{font-size:17px;}
+.toast .toast-close{margin-left:auto;cursor:pointer;opacity:.6;font-size:13px;}
+.toast .toast-close:hover{opacity:1;}
+@keyframes toastIn{from{opacity:0;transform:translateX(30px);}to{opacity:1;transform:translateX(0);}}
+
+/* ── DELETE MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(30,10,14,.55);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:500;opacity:0;pointer-events:none;transition:opacity .25s;}
+.modal-overlay.show{opacity:1;pointer-events:all;}
+.modal-box{background:#fff;border-radius:var(--radius);padding:36px;max-width:440px;width:92%;box-shadow:0 20px 60px rgba(0,0,0,.25);transform:scale(.92);transition:transform .25s cubic-bezier(.4,0,.2,1);}
+.modal-overlay.show .modal-box{transform:scale(1);}
+.modal-box .modal-icon{width:60px;height:60px;border-radius:50%;background:#fee2e2;display:flex;align-items:center;justify-content:center;font-size:26px;color:#c0392b;margin:0 auto 18px;}
+.modal-box h3{text-align:center;font-size:20px;color:#1a1a1a;margin-bottom:10px;font-weight:800;}
+.modal-box p{text-align:center;font-size:14px;color:#666;margin-bottom:16px;line-height:1.6;}
+.modal-box input[type="text"]{width:100%;padding:11px 14px;border:1.5px solid #e0c8ca;border-radius:var(--radius-sm);font-size:14px;font-family:inherit;margin-bottom:18px;outline:none;transition:.18s;}
+.modal-box input[type="text"]:focus{border-color:#c0392b;box-shadow:0 0 0 3px rgba(192,57,43,.1);}
+.modal-actions{display:flex;gap:12px;}
+.modal-actions button{flex:1;padding:12px;border-radius:var(--radius-sm);font-size:14px;font-weight:800;font-family:inherit;cursor:pointer;border:none;transition:.15s;width:100%;}
+.modal-actions .cancel-btn{background:#f5f5f5;color:#444;}
+.modal-actions .cancel-btn:hover{background:#e8e8e8;}
+.modal-actions .confirm-delete{background:#c0392b;color:#fff;box-shadow:0 3px 12px rgba(192,57,43,.3);}
+.modal-actions .confirm-delete:hover{background:#a93226;}
+.modal-actions .confirm-delete:disabled{opacity:.4;cursor:not-allowed;}
+
+/* ── PRIVACY NOTICE ── */
+.privacy-notice{background:#fdf7f7;border:1.5px solid #e8d8da;border-radius:var(--radius-sm);padding:14px 16px;display:flex;gap:12px;align-items:flex-start;}
+.privacy-notice i{color:#7b1e2b;font-size:18px;margin-top:2px;flex-shrink:0;}
+.privacy-notice .pn-title{font-size:13px;font-weight:800;color:#7b1e2b;margin-bottom:4px;}
+.privacy-notice .pn-body{font-size:12px;color:#7a5a60;line-height:1.6;font-weight:600;}
+
+/* ── FOOTER ── */
+footer{background:#641220;color:#fff;text-align:center;padding:22px;font-size:14px;font-weight:600;margin-top:80px;}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  .settings-topbar{grid-template-columns:1fr;gap:14px;}
+  .user-quick-card{min-width:unset;}
+  .field-group{grid-template-columns:1fr;}
+  .account-actions{grid-template-columns:1fr;}
+  .info-grid{grid-template-columns:1fr;}
+  nav{padding:14px 20px;}
+  nav ul{flex-wrap:wrap;justify-content:center;gap:8px;}
+  nav ul li a span{display:none;}
+  .page-header{padding:26px 22px 22px;}
+  .page-header h1{font-size:22px;}
+  .sticky-save{padding:12px 20px;}
+  .sidebar-nav a{padding:10px 13px;font-size:12px;}
+}
+</style>
+</head>
+
+<body class="{% if settings.theme == 'dark' %}theme-dark{% endif %}" data-theme="{{ settings.theme or 'light' }}">
+
+<!-- NAVBAR -->
+<nav>
+  <div class="logo"><i class="fa-solid fa-heart-pulse"></i> MyDigiDia Record</div>
+  <ul>
+    <li><a href="/"><i class="fa fa-home"></i><span>Home</span></a></li>
+    {% if session.get('user_id') %}
+      <li><a href="/record"><i class="fa fa-folder"></i><span>Records</span></a></li>
+      <li><a href="/reports_page"><i class="fa fa-chart-line"></i><span>Reports</span></a></li>
+      <li><a href="/diet"><i class="fa fa-utensils"></i><span>Diet</span></a></li>
+      <li><a href="/settings" class="active"><i class="fa fa-gear"></i><span>Settings</span></a></li>
+      <li><a href="/profile"><i class="fa fa-circle-user"></i><span>Profile</span></a></li>
+    {% else %}
+      <li><a href="/login_page"><i class="fa fa-gear"></i><span>Settings</span></a></li>
+    {% endif %}
+    <li><a href="/help"><i class="fa fa-circle-question"></i><span>Help</span></a></li>
+    {% if session.get('user') %}
+      <li><a href="/logout"><i class="fa fa-sign-out-alt"></i><span>Logout</span></a></li>
+    {% else %}
+      <li><a href="/login_page"><i class="fa fa-user"></i><span>Login</span></a></li>
+    {% endif %}
+  </ul>
+</nav>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+    <div class="toast {{ category }}">
+      <i class="fa {% if category == 'success' %}fa-circle-check{% else %}fa-circle-xmark{% endif %}"></i>
+      {{ message }}
+      <span class="toast-close" onclick="this.parentElement.remove()"><i class="fa fa-times"></i></span>
+    </div>
+    {% endfor %}
+  {% endwith %}
+</div>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <div class="breadcrumb">
+    <a href="/"><i class="fa fa-home"></i> Home</a>
+    <i class="fa fa-chevron-right" style="font-size:10px"></i>
+    <span>Settings</span>
+  </div>
+  <h1><i class="fa fa-gear"></i> Settings Dashboard</h1>
+  <p>Manage your preferences, privacy &amp; account configuration</p>
+</div>
+
+<!-- LAYOUT -->
+<div class="settings-layout">
+
+  <!-- TOP BAR: Quick Nav + User Card -->
+  <div class="settings-topbar">
+    <div class="sidebar-card">
+      <div class="sidebar-header">
+        <h3><i class="fa fa-sliders"></i> Quick Navigation</h3>
+      </div>
+      <div class="sidebar-nav">
+        <a href="#appearance"  class="active"><i class="fa fa-palette"></i> Appearance</a>
+        <a href="#notifications">             <i class="fa fa-bell"></i> Notifications</a>
+        <a href="#privacy">                   <i class="fa fa-shield-halved"></i> Privacy</a>
+        <a href="#data-sync">                 <i class="fa fa-cloud"></i> Data &amp; Sync</a>
+        <a href="#health-prefs">              <i class="fa fa-heart-pulse"></i> Health Prefs</a>
+        <a href="#account">                   <i class="fa fa-user-gear"></i> Account</a>
+      </div>
+    </div>
+
+    <div class="user-quick-card">
+      <div class="avatar"><i class="fa fa-user-doctor"></i></div>
+      <div class="user-info">
+        <div class="user-name">{{ session.get('user', 'User') }}</div>
+        <div class="user-role">Patient Account</div>
+        <span class="status-badge connected" style="margin-top:4px;font-size:11px;">
+          <i class="fa fa-circle" style="font-size:7px"></i> Active
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS FORM -->
+  <main class="settings-main">
+  <form method="POST" action="/save_settings" id="settingsForm">
+
+    <!-- 1. APPEARANCE -->
+    <div class="section-card" id="appearance">
+      <div class="card-header">
+        <div class="icon-wrap"><i class="fa fa-palette"></i></div>
+        <div>
+          <h2>Appearance Settings</h2>
+          <p>Customize your visual experience</p>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="field-group">
+          <div class="field">
+            <label><i class="fa fa-moon"></i> Theme</label>
+            <select name="theme" id="themeSelect" onchange="markDirty()">
+              <option value="light"  {% if settings.theme=='light'  or not settings.theme %}selected{% endif %}>Light Mode</option>
+              <option value="dark"   {% if settings.theme=='dark'   %}selected{% endif %}>Dark Mode</option>
+              <option value="system" {% if settings.theme=='system' %}selected{% endif %}>System Default</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- 2. NOTIFICATIONS -->
+    <div class="section-card" id="notifications">
+      <div class="card-header">
+        <div class="icon-wrap"><i class="fa fa-bell"></i></div>
+        <div>
+          <h2>Notification Settings</h2>
+          <p>Control how and when you receive health alerts</p>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="toggle-list">
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <div class="t-icon"><i class="fa fa-envelope"></i></div>
+              <div class="t-text">
+                <strong>Email Notifications</strong>
+                <span>Receive updates and summaries via email</span>
+              </div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" name="email_notifications" {% if settings.email_notifications %}checked{% endif %} onchange="markDirty()">
+              <span class="knob"></span>
+            </label>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <div class="t-icon"><i class="fa fa-mobile-screen"></i></div>
+              <div class="t-text">
+                <strong>SMS Notifications</strong>
+                <span>Get text alerts for critical readings</span>
+              </div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" name="sms_notifications" {% if settings.sms_notifications %}checked{% endif %} onchange="markDirty()">
+              <span class="knob"></span>
+            </label>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <div class="t-icon"><i class="fa fa-triangle-exclamation"></i></div>
+              <div class="t-text">
+                <strong>Glucose Alerts</strong>
+                <span>Notify when blood sugar is out of safe range</span>
+              </div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" name="glucose_alerts" {% if settings.glucose_alerts %}checked{% endif %} onchange="markDirty()">
+              <span class="knob"></span>
+            </label>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <div class="t-icon"><i class="fa fa-chart-bar"></i></div>
+              <div class="t-text">
+                <strong>Weekly Report Alerts</strong>
+                <span>Receive a health summary every Sunday</span>
+              </div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" name="weekly_report" {% if settings.weekly_report %}checked{% endif %} onchange="markDirty()">
+              <span class="knob"></span>
+            </label>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <div class="t-icon"><i class="fa fa-clock"></i></div>
+              <div class="t-text">
+                <strong>Reminder Notifications</strong>
+                <span>Daily reminders to log your glucose readings</span>
+              </div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" name="reminder_notifications" {% if settings.reminder_notifications %}checked{% endif %} onchange="markDirty()">
+              <span class="knob"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. PRIVACY -->
+    <div class="section-card" id="privacy">
+      <div class="card-header">
+        <div class="icon-wrap"><i class="fa fa-shield-halved"></i></div>
+        <div>
+          <h2>Privacy Settings</h2>
+          <p>Control your data visibility and sharing preferences</p>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="toggle-list">
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <div class="t-icon"><i class="fa fa-eye"></i></div>
+              <div class="t-text">
+                <strong>Profile Visibility</strong>
+                <span>Allow other verified users to view your profile</span>
+              </div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" name="profile_visibility" {% if settings.profile_visibility %}checked{% endif %} onchange="markDirty()">
+              <span class="knob"></span>
+            </label>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <div class="t-icon"><i class="fa fa-share-nodes"></i></div>
+              <div class="t-text">
+                <strong>Data Sharing</strong>
+                <span>Share anonymized data for medical research</span>
+              </div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" name="data_sharing" {% if settings.data_sharing %}checked{% endif %} onchange="markDirty()">
+              <span class="knob"></span>
+            </label>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="privacy-notice">
+          <i class="fa fa-lock"></i>
+          <div>
+            <div class="pn-title">Secure Account Privacy</div>
+            <div class="pn-body">Your health data is encrypted and stored securely. We follow HIPAA-aligned practices to ensure your medical information is never shared without explicit consent.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. DATA & SYNC -->
+    <div class="section-card" id="data-sync">
+      <div class="card-header">
+        <div class="icon-wrap"><i class="fa fa-cloud-arrow-up"></i></div>
+        <div>
+          <h2>Data &amp; Sync Settings</h2>
+          <p>Manage storage, synchronization, and connected devices</p>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="toggle-list">
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <div class="t-icon"><i class="fa fa-floppy-disk"></i></div>
+              <div class="t-text">
+                <strong>Auto Save Records</strong>
+                <span>Automatically save readings as you enter them</span>
+              </div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" name="auto_save" {% if settings.auto_save %}checked{% endif %} onchange="markDirty()">
+              <span class="knob"></span>
+            </label>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <div class="t-icon"><i class="fa fa-cloud"></i></div>
+              <div class="t-text">
+                <strong>Cloud Sync</strong>
+                <span>Keep your data synced across all devices</span>
+              </div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" name="cloud_sync" {% if settings.cloud_sync %}checked{% endif %} onchange="markDirty()">
+              <span class="knob"></span>
+            </label>
+          </div>
+        </div>
+        <!-- mySugr Import shortcut -->
+        <div style="margin-top:18px;padding:16px 18px;background:#fdf7f7;border:1.5px solid var(--border);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div style="width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#7b1e2b,#b23a48);display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;flex-shrink:0;">
+              <i class="fa fa-file-import"></i>
+            </div>
+            <div>
+              <div style="font-size:14px;font-weight:800;color:var(--text);">Import from mySugr</div>
+              <div style="font-size:12px;color:var(--text-muted);font-weight:600;">Upload your mySugr CSV export to sync glucose readings</div>
+            </div>
+          </div>
+          <a href="/mysugr_import" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:linear-gradient(135deg,#7b1e2b,#b23a48);color:#fff;border-radius:var(--radius-sm);font-size:13px;font-weight:700;text-decoration:none;box-shadow:0 3px 12px rgba(123,30,43,.28);transition:.18s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
+            <i class="fa fa-upload"></i> Import Now
+          </a>
+        </div>
+        <div class="info-grid">
+          <div class="info-item">
+            <div class="ii-icon"><i class="fa fa-rotate"></i></div>
+            <div class="ii-text">
+              <div class="label">Last Sync</div>
+              <div class="value">
+                {% if settings.cloud_sync %}
+                  <span class="status-badge synced"><i class="fa fa-check"></i> Just Now</span>
+                {% else %}
+                  <span class="status-badge warning"><i class="fa fa-pause"></i> Sync Off</span>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          <div class="info-item">
+            <div class="ii-icon"><i class="fa fa-mobile-screen-button"></i></div>
+            <div class="ii-text">
+              <div class="label">Connected Device</div>
+              <div class="value"><span class="status-badge connected"><i class="fa fa-circle" style="font-size:8px"></i> This Device</span></div>
+            </div>
+          </div>
+          <div class="info-item">
+            <div class="ii-icon"><i class="fa fa-database"></i></div>
+            <div class="ii-text">
+              <div class="label">Data Storage</div>
+              <div class="value" style="font-size:13px;">MySQL Cloud DB</div>
+            </div>
+          </div>
+          <div class="info-item">
+            <div class="ii-icon"><i class="fa fa-shield-halved"></i></div>
+            <div class="ii-text">
+              <div class="label">Encryption</div>
+              <div class="value"><span class="status-badge connected"><i class="fa fa-lock" style="font-size:10px"></i> SSL Active</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. HEALTH PREFERENCES -->
+    <div class="section-card" id="health-prefs">
+      <div class="card-header">
+        <div class="icon-wrap"><i class="fa fa-heart-pulse"></i></div>
+        <div>
+          <h2>Health Preferences</h2>
+          <p>Personalize your glucose tracking experience</p>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="field-group">
+          <div class="field">
+            <label><i class="fa fa-droplet"></i> Preferred Glucose Unit</label>
+            <div class="unit-selector">
+              <button type="button" class="unit-btn {% if settings.glucose_unit != 'mmol/L' %}active{% endif %}" id="unitMgdl" onclick="selectUnit('mg/dL')">mg/dL</button>
+              <button type="button" class="unit-btn {% if settings.glucose_unit == 'mmol/L' %}active{% endif %}" id="unitMmol" onclick="selectUnit('mmol/L')">mmol/L</button>
+            </div>
+            <input type="hidden" name="glucose_unit" id="glucoseUnit" value="{{ settings.glucose_unit or 'mg/dL' }}">
+          </div>
+          <div class="field">
+            <label><i class="fa fa-rotate"></i> Reminder Frequency</label>
+            <select name="reminder_frequency" onchange="markDirty()">
+              <option value="daily" {% if settings.reminder_frequency == 'daily' or not settings.reminder_frequency %}selected{% endif %}>Daily</option>
+              <option value="twice_daily" {% if settings.reminder_frequency == 'twice_daily' %}selected{% endif %}>Twice Daily</option>
+              <option value="weekly" {% if settings.reminder_frequency == 'weekly' %}selected{% endif %}>Weekly</option>
+              <option value="custom" {% if settings.reminder_frequency == 'custom' %}selected{% endif %}>Custom</option>
+            </select>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="field-group">
+          <div class="field">
+            <label><i class="fa fa-phone"></i> Emergency Contact</label>
+            <input type="tel" name="emergency_contact" value="{{ settings.emergency_contact or '' }}" placeholder="+91 00000 00000" onchange="markDirty()">
+          </div>
+          <div class="field">
+            <label><i class="fa fa-calendar-check"></i> Daily Tracking Goal</label>
+            <select name="daily_tracking" onchange="markDirty()">
+              <option value="3" {% if settings.daily_tracking == '3' %}selected{% endif %}>3 readings/day</option>
+              <option value="4" {% if settings.daily_tracking == '4' or not settings.daily_tracking %}selected{% endif %}>4 readings/day</option>
+              <option value="5" {% if settings.daily_tracking == '5' %}selected{% endif %}>5 readings/day</option>
+              <option value="custom" {% if settings.daily_tracking == 'custom' %}selected{% endif %}>Custom schedule</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </form><!-- end settings form -->
+
+    <!-- 6. ACCOUNT SETTINGS (outside form — uses own forms/links) -->
+    <div class="section-card" id="account">
+      <div class="card-header">
+        <div class="icon-wrap"><i class="fa fa-user-gear"></i></div>
+        <div>
+          <h2>Account Settings</h2>
+          <p>Manage your profile and account security</p>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="account-actions">
+          <a href="/profile" class="action-btn outline">
+            <i class="fa fa-user-pen"></i> Edit Profile
+          </a>
+          <a href="/profile" class="action-btn outline">
+            <i class="fa fa-key"></i> Change Password
+          </a>
+          <a href="/logout" class="action-btn warning-btn">
+            <i class="fa fa-right-from-bracket"></i> Logout
+          </a>
+          <button type="button" class="action-btn danger-btn" onclick="showDeleteModal()">
+            <i class="fa fa-trash-can"></i> Delete Account
+          </button>
+        </div>
+        <div class="divider"></div>
+        <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;">
+          <div style="font-size:12px;color:var(--text-muted);font-weight:600;display:flex;align-items:center;gap:6px;">
+            <i class="fa fa-circle-info" style="color:var(--accent2);"></i>
+            Account deletion is permanent and cannot be undone.
+          </div>
+          <span class="status-badge connected" style="font-size:11px;">
+            <i class="fa fa-shield-halved"></i> Session Verified
+          </span>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- STICKY SAVE BAR -->
+<div class="sticky-save" id="stickySave">
+  <div class="save-msg">
+    <i class="fa fa-circle-exclamation"></i>
+    You have unsaved changes
+  </div>
+  <button type="button" class="save-btn" onclick="document.getElementById('settingsForm').submit()">
+    <i class="fa fa-floppy-disk"></i> Save All Settings
+  </button>
+</div>
+
+<!-- DELETE MODAL -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal-box">
+    <div class="modal-icon"><i class="fa fa-triangle-exclamation"></i></div>
+    <h3>Delete Your Account?</h3>
+    <p>This action is <strong>permanent</strong>. All your records, reports, and health data will be erased forever.</p>
+    <p>Type <strong>DELETE</strong> to confirm:</p>
+    <input type="text" id="deleteConfirmInput" placeholder="Type DELETE here…" oninput="checkDeleteConfirm()">
+    <div class="modal-actions">
+      <button class="cancel-btn" onclick="hideDeleteModal()"><i class="fa fa-times"></i> Cancel</button>
+      <form method="POST" action="/delete_account" style="flex:1;display:flex;">
+        <button type="submit" class="confirm-delete" id="confirmDeleteBtn" disabled>
+          <i class="fa fa-trash-can"></i> Delete Forever
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <p><i class="fa fa-heart-pulse"></i> MyDigiDia Record — Blood Sugar Management System | Healthcare © 2025</p>
+</footer>
+
+<script>
+/* ── Sidebar scroll highlight ── */
+const sections = document.querySelectorAll('.section-card[id]');
+const navLinks = document.querySelectorAll('.sidebar-nav a');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if(e.isIntersecting){
+      navLinks.forEach(a => a.classList.remove('active'));
+      const a = document.querySelector(`.sidebar-nav a[href="#${e.target.id}"]`);
+      if(a) a.classList.add('active');
+    }
+  });
+},{threshold:.35});
+sections.forEach(s => obs.observe(s));
+
+/* ── Smooth scroll sidebar links ── */
+navLinks.forEach(a => {
+  a.addEventListener('click', function(e){
+    e.preventDefault();
+    const t = document.querySelector(this.getAttribute('href'));
+    if(t){ t.scrollIntoView({behavior:'smooth',block:'start'}); }
+    navLinks.forEach(x => x.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+
+/* ── Dirty / sticky save ── */
+let dirty = false;
+function markDirty(){
+  if(!dirty){
+    dirty = true;
+    document.getElementById('stickySave').classList.add('visible');
+  }
+}
+document.getElementById('settingsForm').addEventListener('change', markDirty);
+
+function applyTheme(theme){
+  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  document.body.classList.toggle('theme-dark', theme === 'dark' || (theme === 'system' && prefersDark));
+}
+const themeSelect = document.getElementById('themeSelect');
+applyTheme(themeSelect.value);
+themeSelect.addEventListener('change', () => applyTheme(themeSelect.value));
+if(window.matchMedia){
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+    if(themeSelect.value === 'system') applyTheme('system');
+  });
+}
+
+/* ── Glucose unit selector ── */
+function selectUnit(unit){
+  document.getElementById('glucoseUnit').value = unit;
+  document.getElementById('unitMgdl').classList.toggle('active', unit==='mg/dL');
+  document.getElementById('unitMmol').classList.toggle('active', unit==='mmol/L');
+  markDirty();
+}
+
+/* ── Delete modal ── */
+function showDeleteModal(){ document.getElementById('deleteModal').classList.add('show'); }
+function hideDeleteModal(){
+  document.getElementById('deleteModal').classList.remove('show');
+  document.getElementById('deleteConfirmInput').value = '';
+  document.getElementById('confirmDeleteBtn').disabled = true;
+}
+function checkDeleteConfirm(){
+  document.getElementById('confirmDeleteBtn').disabled =
+    (document.getElementById('deleteConfirmInput').value.trim() !== 'DELETE');
+}
+document.getElementById('deleteModal').addEventListener('click', function(e){
+  if(e.target===this) hideDeleteModal();
+});
+
+/* ── Auto-dismiss toasts ── */
+setTimeout(() => {
+  document.querySelectorAll('.toast').forEach(t => {
+    t.style.transition = 'opacity .3s';
+    t.style.opacity = '0';
+    setTimeout(() => t.remove(), 300);
+  });
+}, 4000);
+</script>
+</body>
+</html>

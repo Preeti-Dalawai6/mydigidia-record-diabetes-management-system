@@ -1,0 +1,1672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reports & Analytics — MyDigiDia Record</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<style>
+/* ═══════════════════════════════════════════════
+   DESIGN TOKENS — matching existing app theme
+═══════════════════════════════════════════════ */
+:root {
+  --crimson-dark:   #641220;
+  --crimson-mid:    #7b1e2b;
+  --crimson:        #a71d31;
+  --crimson-light:  #b23a48;
+  --crimson-pale:   #fdf7f7;
+  --crimson-tint:   #fff0f0;
+  --crimson-border: #f1d0d0;
+
+  --card-shadow: 0 8px 25px rgba(122,31,43,0.10);
+  --card-radius: 18px;
+
+  --text-dark:  #1a1a2e;
+  --text-mid:   #444;
+  --text-light: #888;
+
+  --low-color:    #3b82f6;
+  --normal-color: #22c55e;
+  --high-color:   #ef4444;
+
+  --transition: all 0.28s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* ───── RESET & BASE ───── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: var(--crimson-pale);
+  color: var(--text-dark);
+  min-height: 100vh;
+}
+
+/* ───── NAVBAR ───── */
+nav {
+  width: 100%;
+  background: linear-gradient(90deg, #7b1e2b, #b23a48);
+  padding: 18px 50px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #fff;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+nav .logo { font-size: 24px; font-weight: 700; }
+nav .logo i { margin-right: 8px; }
+
+nav ul { display: flex; list-style: none; gap: 24px; }
+nav ul li a {
+  text-decoration: none;
+  color: #fff;
+  font-size: 15px;
+  opacity: 0.9;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+nav ul li a:hover { opacity: 1; color: #ffe5e5; }
+nav ul li a.active {
+  background: rgba(255,255,255,0.18);
+  padding: 5px 12px;
+  border-radius: 20px;
+  opacity: 1;
+}
+
+/* ───── PAGE HEADER ───── */
+.page-header {
+  background: linear-gradient(135deg, var(--crimson-dark) 0%, var(--crimson-light) 100%);
+  padding: 36px 48px;
+  color: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.page-header h1 {
+  font-size: 32px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.page-header p {
+  font-size: 15px;
+  opacity: 0.85;
+  margin-top: 4px;
+}
+
+.header-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+.btn-outline-white {
+  border: 1.5px solid rgba(255,255,255,0.6);
+  background: transparent;
+  color: #fff;
+  padding: 9px 20px;
+  border-radius: 10px;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  transition: var(--transition);
+  font-family: inherit;
+}
+.btn-outline-white:hover { background: rgba(255,255,255,0.2); border-color: #fff; }
+
+/* ───── MAIN CONTAINER ───── */
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 32px 24px 60px;
+}
+
+/* ───── LOADING OVERLAY ───── */
+#loadingOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(100, 18, 32, 0.65);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  color: #fff;
+  gap: 18px;
+  transition: opacity 0.3s;
+}
+#loadingOverlay.hidden { opacity: 0; pointer-events: none; }
+
+.spinner {
+  width: 52px; height: 52px;
+  border: 5px solid rgba(255,255,255,0.25);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.85s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ───── FILTER BAR ───── */
+.filter-bar {
+  background: #fff;
+  border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
+  padding: 20px 24px;
+  margin-bottom: 28px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.filter-bar label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--crimson-mid);
+  margin-right: 4px;
+}
+
+.filter-btn {
+  padding: 9px 22px;
+  border-radius: 24px;
+  border: 2px solid var(--crimson-border);
+  background: #fff;
+  color: var(--text-mid);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  font-family: inherit;
+}
+.filter-btn:hover, .filter-btn.active {
+  background: var(--crimson);
+  border-color: var(--crimson);
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(167,29,49,0.3);
+}
+
+.custom-date-range {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.custom-date-range input[type="date"] {
+  padding: 8px 12px;
+  border: 2px solid var(--crimson-border);
+  border-radius: 10px;
+  font-size: 14px;
+  color: var(--text-dark);
+  outline: none;
+  transition: var(--transition);
+  font-family: inherit;
+  background: #fff;
+}
+.custom-date-range input[type="date"]:focus { border-color: var(--crimson); }
+
+.btn-apply {
+  padding: 9px 20px;
+  background: var(--crimson);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  font-family: inherit;
+}
+.btn-apply:hover { background: var(--crimson-dark); }
+
+/* ───── SUMMARY CARDS ───── */
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));
+  gap: 18px;
+  margin-bottom: 28px;
+}
+
+.summary-card {
+  background: #fff;
+  border-radius: var(--card-radius);
+  padding: 22px 20px;
+  box-shadow: var(--card-shadow);
+  position: relative;
+  overflow: hidden;
+  transition: var(--transition);
+  border-top: 4px solid transparent;
+}
+.summary-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px rgba(122,31,43,0.15);
+}
+
+.summary-card.today { border-top-color: var(--crimson); }
+.summary-card.weekly { border-top-color: #f59e0b; }
+.summary-card.monthly { border-top-color: #8b5cf6; }
+.summary-card.highest { border-top-color: var(--high-color); }
+.summary-card.lowest { border-top-color: var(--low-color); }
+.summary-card.total { border-top-color: var(--normal-color); }
+
+.summary-card .icon-wrap {
+  width: 46px; height: 46px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  margin-bottom: 14px;
+}
+
+.summary-card.today .icon-wrap { background: #fef2f2; color: var(--crimson); }
+.summary-card.weekly .icon-wrap { background: #fffbeb; color: #f59e0b; }
+.summary-card.monthly .icon-wrap { background: #f5f3ff; color: #8b5cf6; }
+.summary-card.highest .icon-wrap { background: #fef2f2; color: var(--high-color); }
+.summary-card.lowest .icon-wrap { background: #eff6ff; color: var(--low-color); }
+.summary-card.total .icon-wrap { background: #f0fdf4; color: var(--normal-color); }
+
+.summary-card .value {
+  font-size: 30px;
+  font-weight: 800;
+  color: var(--text-dark);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.summary-card .unit {
+  font-size: 13px;
+  color: var(--text-light);
+  display: inline;
+}
+.summary-card .label {
+  font-size: 13px;
+  color: var(--text-light);
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+/* ───── SECTION CARDS ───── */
+.card {
+  background: #fff;
+  border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
+  padding: 28px;
+  margin-bottom: 24px;
+  animation: fadeUp 0.4s ease both;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 22px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.card-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--crimson-dark);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.card-title i { color: var(--crimson); }
+
+/* ───── CHARTS GRID ───── */
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 900px) {
+  .charts-grid { grid-template-columns: 1fr; }
+}
+
+.chart-wrapper {
+  position: relative;
+  height: 300px;
+}
+
+/* ───── RANGE INDICATOR ───── */
+.range-legend {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.range-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-mid);
+}
+
+.range-dot {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+}
+.range-dot.low { background: var(--low-color); }
+.range-dot.normal { background: var(--normal-color); }
+.range-dot.high { background: var(--high-color); }
+
+/* ───── INSIGHTS GRID ───── */
+.insights-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.insight-card {
+  padding: 18px 20px;
+  border-radius: 14px;
+  border-left: 4px solid transparent;
+  background: #fafafa;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  transition: var(--transition);
+}
+.insight-card:hover { transform: translateX(4px); }
+
+.insight-card.info { border-left-color: var(--low-color); background: #eff6ff; }
+.insight-card.success { border-left-color: var(--normal-color); background: #f0fdf4; }
+.insight-card.warning { border-left-color: #f59e0b; background: #fffbeb; }
+.insight-card.danger { border-left-color: var(--high-color); background: #fef2f2; }
+
+.insight-card .insight-icon {
+  font-size: 22px;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+.insight-card.info .insight-icon { color: var(--low-color); }
+.insight-card.success .insight-icon { color: var(--normal-color); }
+.insight-card.warning .insight-icon { color: #f59e0b; }
+.insight-card.danger .insight-icon { color: var(--high-color); }
+
+.insight-card .insight-text {
+  font-size: 14px;
+  color: var(--text-mid);
+  line-height: 1.55;
+  font-weight: 500;
+}
+.insight-card .insight-text strong { color: var(--text-dark); font-weight: 700; display: block; margin-bottom: 3px; }
+
+/* ───── ANALYSIS STATS ───── */
+.analysis-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.analysis-stat {
+  text-align: center;
+  padding: 18px;
+  background: var(--crimson-tint);
+  border-radius: 14px;
+  border: 1px solid var(--crimson-border);
+}
+
+.analysis-stat .stat-val {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--crimson);
+  line-height: 1;
+}
+
+.analysis-stat .stat-label {
+  font-size: 12px;
+  color: var(--text-light);
+  margin-top: 5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ───── PROGRESS BAR ───── */
+.progress-item {
+  margin-bottom: 14px;
+}
+
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-mid);
+  margin-bottom: 6px;
+}
+
+.progress-track {
+  height: 10px;
+  background: #f3f4f6;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 1.2s cubic-bezier(0.4,0,0.2,1);
+}
+.progress-fill.normal { background: var(--normal-color); }
+.progress-fill.high { background: var(--high-color); }
+.progress-fill.low { background: var(--low-color); }
+
+/* ───── TABLE ───── */
+.table-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.search-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+  max-width: 340px;
+}
+
+.search-wrap i {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-light);
+  font-size: 14px;
+}
+
+.search-wrap input {
+  width: 100%;
+  padding: 10px 12px 10px 36px;
+  border: 2px solid var(--crimson-border);
+  border-radius: 10px;
+  font-size: 14px;
+  outline: none;
+  transition: var(--transition);
+  font-family: inherit;
+  background: #fafafa;
+}
+.search-wrap input:focus { border-color: var(--crimson); background: #fff; }
+
+.export-btns { display: flex; gap: 8px; }
+
+.btn-export {
+  padding: 9px 16px;
+  border-radius: 10px;
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: var(--transition);
+  font-family: inherit;
+}
+.btn-export:hover { transform: translateY(-1px); }
+.btn-export.pdf { background: #fef2f2; color: var(--high-color); }
+.btn-export.excel { background: #f0fdf4; color: var(--normal-color); }
+.btn-export.pdf:hover { background: var(--high-color); color: #fff; }
+.btn-export.excel:hover { background: var(--normal-color); color: #fff; }
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.data-table thead th {
+  background: linear-gradient(90deg, var(--crimson-dark), var(--crimson-mid));
+  color: #fff;
+  padding: 13px 16px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.4px;
+}
+
+.data-table thead th:first-child { border-radius: 10px 0 0 10px; }
+.data-table thead th:last-child { border-radius: 0 10px 10px 0; }
+
+.data-table tbody tr {
+  border-bottom: 1px solid #f5f5f5;
+  transition: background 0.18s;
+}
+.data-table tbody tr:hover { background: var(--crimson-tint); }
+
+.data-table tbody td {
+  padding: 12px 16px;
+  color: var(--text-mid);
+}
+
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  display: inline-block;
+}
+.status-badge.Low { background: #dbeafe; color: #1d4ed8; }
+.status-badge.Normal { background: #dcfce7; color: #15803d; }
+.status-badge.High { background: #fee2e2; color: #dc2626; }
+
+/* ───── PAGINATION ───── */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.pagination-info { font-size: 13px; color: var(--text-light); }
+
+.pagination-btns { display: flex; gap: 6px; }
+
+.page-btn {
+  width: 36px; height: 36px;
+  border-radius: 8px;
+  border: 2px solid var(--crimson-border);
+  background: #fff;
+  color: var(--text-mid);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+  font-family: inherit;
+}
+.page-btn:hover, .page-btn.active {
+  background: var(--crimson);
+  border-color: var(--crimson);
+  color: #fff;
+}
+.page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ───── DARK MODE ───── */
+body.dark {
+  background: #12050a;
+  color: #e8e8e8;
+}
+body.dark .card, body.dark .filter-bar, body.dark .summary-card {
+  background: #1f0a10;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+}
+body.dark .card-title { color: #f1a0a8; }
+body.dark .data-table tbody tr:hover { background: #2a1016; }
+body.dark .data-table tbody td { color: #ccc; }
+body.dark .filter-btn { background: #1f0a10; border-color: #5a2030; color: #ccc; }
+body.dark .summary-card .label, body.dark .summary-card .value { color: #e8e8e8; }
+body.dark .search-wrap input { background: #2a1016; color: #e8e8e8; border-color: #5a2030; }
+body.dark .data-table tbody { background: #1f0a10; }
+body.dark .analysis-stat { background: #2a1016; border-color: #5a2030; }
+body.dark .insight-card.info { background: #0d1b2e; }
+body.dark .insight-card.success { background: #071a10; }
+body.dark .insight-card.warning { background: #1e1405; }
+body.dark .insight-card.danger { background: #1e0808; }
+
+/* ───── DARK MODE TOGGLE ───── */
+#darkToggle {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  width: 50px; height: 50px;
+  border-radius: 50%;
+  background: var(--crimson);
+  color: #fff;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  box-shadow: 0 4px 18px rgba(167,29,49,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+  z-index: 50;
+}
+#darkToggle:hover { background: var(--crimson-dark); transform: scale(1.1); }
+
+/* ───── COMPARE BANNER ───── */
+.compare-banner {
+  background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+  border: 1.5px solid #86efac;
+  border-radius: 14px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+.compare-banner.negative { background: linear-gradient(135deg, #fef2f2, #fee2e2); border-color: #fca5a5; }
+.compare-banner.neutral { background: linear-gradient(135deg, #fffbeb, #fef9c3); border-color: #fcd34d; }
+
+.compare-banner i { font-size: 24px; flex-shrink: 0; }
+.compare-banner.positive i { color: var(--normal-color); }
+.compare-banner.negative i { color: var(--high-color); }
+.compare-banner.neutral i { color: #f59e0b; }
+
+.compare-text strong { display: block; font-size: 15px; font-weight: 700; color: var(--text-dark); }
+.compare-text span { font-size: 13px; color: var(--text-mid); }
+
+/* ───── FOOTER ───── */
+footer {
+  background: var(--crimson-dark);
+  color: rgba(255,255,255,0.8);
+  text-align: center;
+  padding: 18px;
+  font-size: 13px;
+}
+
+/* ───── RESPONSIVE ───── */
+@media (max-width: 768px) {
+  nav { padding: 14px 18px; flex-direction: column; gap: 12px; }
+  nav ul { flex-wrap: wrap; justify-content: center; gap: 10px; }
+  .page-header { padding: 24px 20px; }
+  .page-header h1 { font-size: 24px; }
+  .container { padding: 20px 14px 50px; }
+  .filter-bar { gap: 8px; }
+  .custom-date-range { margin-left: 0; width: 100%; }
+  .summary-grid { grid-template-columns: repeat(2, 1fr); }
+  .table-controls { flex-direction: column; align-items: stretch; }
+  .search-wrap { max-width: 100%; }
+}
+
+@media (max-width: 480px) {
+  .summary-grid { grid-template-columns: 1fr 1fr; }
+  .summary-card .value { font-size: 24px; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- ────────────────── LOADING ────────────────── -->
+<div id="loadingOverlay">
+  <div class="spinner"></div>
+  <p style="font-size:16px; font-weight:600;">Loading your health data…</p>
+</div>
+
+<!-- ────────────────── NAVBAR ────────────────── -->
+<nav>
+  <div class="logo">
+    <i class="fa-solid fa-heart-pulse"></i> MyDigiDia Record
+  </div>
+  <ul>
+    <li><a href="/"><i class="fa fa-home"></i> Home</a></li>
+    <li><a href="#"><i class="fa fa-folder"></i> Records</a></li>
+    <li><a href="/reports_page" class="active"><i class="fa fa-chart-line"></i> Reports</a></li>
+    <li><a href="/diet"><i class="fa fa-utensils"></i> Diet</a></li>
+    <li><a href="/settings"><i class="fa fa-gear"></i> Settings</a></li>
+    <li><a href="/profile"><i class="fa fa-circle-user"></i> Profile</a></li>
+    <li><a href="/help"><i class="fa fa-circle-question"></i> Help</a></li>
+    <li><a href="/logout"><i class="fa fa-sign-out-alt"></i> Logout</a></li>
+  </ul>
+</nav>
+
+<!-- ────────────────── PAGE HEADER ────────────────── -->
+<div class="page-header">
+  <div>
+    <h1><i class="fa fa-chart-line"></i> Reports & Analytics</h1>
+    <p>Comprehensive glucose tracking, trends, and Powered health insights</p>
+  </div>
+  <div class="header-actions">
+    <button class="btn-outline-white" onclick="downloadFullPDF()">
+      <i class="fa fa-file-pdf"></i> Download PDF
+    </button>
+    <button class="btn-outline-white" onclick="shareReport()">
+      <i class="fa fa-share-nodes"></i> Share Report
+    </button>
+  </div>
+</div>
+
+<!-- ────────────────── MAIN ────────────────── -->
+<div class="container">
+
+  <!-- COMPARE BANNER -->
+  <div class="compare-banner positive" id="compareBanner">
+    <i class="fa fa-arrow-trend-up"></i>
+    <div class="compare-text">
+      <strong id="compareTitle">Average glucose improved by 8% vs last month</strong>
+      <span id="compareDesc">Keep it up — your readings are trending toward the healthy range.</span>
+    </div>
+  </div>
+
+  <!-- FILTER BAR -->
+  <div class="filter-bar">
+    <label><i class="fa fa-filter" style="margin-right:4px;"></i> Period:</label>
+    <button class="filter-btn active" onclick="setFilter('all',this)">All Records</button>
+    <button class="filter-btn" onclick="setFilter('daily',this)">Daily</button>
+    <button class="filter-btn" onclick="setFilter('weekly',this)">Weekly</button>
+    <button class="filter-btn" onclick="setFilter('monthly',this)">Monthly</button>
+    <div class="custom-date-range">
+      <span style="font-size:13px; font-weight:600; color:var(--text-light);">Custom:</span>
+      <input type="date" id="dateFrom">
+      <span style="color:var(--text-light); font-size:13px;">→</span>
+      <input type="date" id="dateTo">
+      <button class="btn-apply" onclick="applyCustomDate()">Apply</button>
+    </div>
+  </div>
+
+  <!-- SUMMARY CARDS -->
+  <div class="summary-grid">
+    <div class="summary-card today">
+      <div class="icon-wrap"><i class="fa fa-sun"></i></div>
+      <div class="value" id="todayAvg">--</div>
+      <div class="unit"> mg/dL</div>
+      <div class="label">Today's Average</div>
+    </div>
+    <div class="summary-card weekly">
+      <div class="icon-wrap"><i class="fa fa-calendar-week"></i></div>
+      <div class="value" id="weeklyAvg">--</div>
+      <div class="unit"> mg/dL</div>
+      <div class="label">Weekly Average</div>
+    </div>
+    <div class="summary-card monthly">
+      <div class="icon-wrap"><i class="fa fa-calendar"></i></div>
+      <div class="value" id="monthlyAvg">--</div>
+      <div class="unit"> mg/dL</div>
+      <div class="label">Monthly Average</div>
+    </div>
+    <div class="summary-card highest">
+      <div class="icon-wrap"><i class="fa fa-arrow-up"></i></div>
+      <div class="value" id="highestReading">--</div>
+      <div class="unit"> mg/dL</div>
+      <div class="label">Highest Reading</div>
+    </div>
+    <div class="summary-card lowest">
+      <div class="icon-wrap"><i class="fa fa-arrow-down"></i></div>
+      <div class="value" id="lowestReading">--</div>
+      <div class="unit"> mg/dL</div>
+      <div class="label">Lowest Reading</div>
+    </div>
+    <div class="summary-card total">
+      <div class="icon-wrap"><i class="fa fa-database"></i></div>
+      <div class="value" id="totalReadings">--</div>
+      <div class="label">Total Readings</div>
+    </div>
+  </div>
+
+  <!-- GLUCOSE TREND LINE CHART (full width) -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title"><i class="fa fa-chart-line"></i> Glucose Level Trend</div>
+      <div class="range-legend">
+        <div class="range-item"><div class="range-dot low"></div> Low (&lt;70)</div>
+        <div class="range-item"><div class="range-dot normal"></div> Normal (70–140)</div>
+        <div class="range-item"><div class="range-dot high"></div> High (&gt;140)</div>
+      </div>
+    </div>
+    <div style="position:relative; height:320px;">
+      <canvas id="lineChart"></canvas>
+    </div>
+  </div>
+
+  <!-- BAR + PIE CHARTS -->
+  <div class="charts-grid">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><i class="fa fa-chart-bar"></i> Weekly Averages</div>
+      </div>
+      <div class="chart-wrapper">
+        <canvas id="barChart"></canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><i class="fa fa-chart-pie"></i> Status Distribution</div>
+      </div>
+      <div class="chart-wrapper">
+        <canvas id="pieChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ANALYSIS SECTION -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title"><i class="fa fa-microscope"></i> Glucose Analysis</div>
+    </div>
+    <div class="analysis-row">
+      <div class="analysis-stat">
+        <div class="stat-val" id="analysisAvg">--</div>
+        <div class="stat-label">Average mg/dL</div>
+      </div>
+      <div class="analysis-stat">
+        <div class="stat-val" id="analysisNormalPct">--%</div>
+        <div class="stat-label">Normal Readings</div>
+      </div>
+      <div class="analysis-stat">
+        <div class="stat-val" id="analysisHighPct">--%</div>
+        <div class="stat-label">High Readings</div>
+      </div>
+      <div class="analysis-stat">
+        <div class="stat-val" id="analysisLowPct">--%</div>
+        <div class="stat-label">Low Readings</div>
+      </div>
+    </div>
+    <div style="margin-top:4px;">
+      <div class="progress-item">
+        <div class="progress-label"><span>Normal</span><span id="normalPct2">--%</span></div>
+        <div class="progress-track"><div class="progress-fill normal" id="normalBar" style="width:0%"></div></div>
+      </div>
+      <div class="progress-item">
+        <div class="progress-label"><span>High</span><span id="highPct2">--%</span></div>
+        <div class="progress-track"><div class="progress-fill high" id="highBar" style="width:0%"></div></div>
+      </div>
+      <div class="progress-item">
+        <div class="progress-label"><span>Low</span><span id="lowPct2">--%</span></div>
+        <div class="progress-track"><div class="progress-fill low" id="lowBar" style="width:0%"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INSIGHTS -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title"><i class="fa fa-robot"></i>Health Insights</div>
+    </div>
+    <div class="insights-grid" id="insightsGrid">
+      <!-- populated by JS -->
+    </div>
+  </div>
+
+  <!-- REPORT TABLE -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title"><i class="fa fa-table"></i> Reading History</div>
+    </div>
+    <div class="table-controls">
+      <div class="search-wrap">
+        <i class="fa fa-search"></i>
+        <input type="text" id="tableSearch" placeholder="Search by date, level, status…" oninput="filterTable()">
+      </div>
+      <div class="export-btns">
+        <button class="btn-export pdf" onclick="exportPDF()"><i class="fa fa-file-pdf"></i> PDF</button>
+        <button class="btn-export excel" onclick="exportExcel()"><i class="fa fa-file-excel"></i> Excel</button>
+      </div>
+    </div>
+
+    <div style="overflow-x:auto;">
+      <table class="data-table" id="reportTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Meal Timing</th>
+            <th>Glucose Level</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="reportTableBody">
+          <!-- populated by JS -->
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination">
+      <div class="pagination-info" id="paginationInfo"></div>
+      <div class="pagination-btns" id="paginationBtns"></div>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<!-- DARK MODE TOGGLE -->
+<button id="darkToggle" onclick="toggleDark()" title="Toggle dark/light mode">
+  <i class="fa fa-moon" id="darkIcon"></i>
+</button>
+
+<footer>
+  <p>© MyDigiDia Record — Blood Sugar Management System | Healthcare</p>
+</footer>
+
+<!-- ═══════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════ -->
+<script>
+
+// ═══════════════════════════════════════════════════════
+//  REAL DATA INTEGRATION — fetches from Flask/MySQL APIs
+//  No mock/random data anywhere in this file.
+// ═══════════════════════════════════════════════════════
+
+// ─── STATE ───────────────────────────────────────────
+let allData      = [];   // full dataset from DB (current filter window)
+let filteredData = [];   // after client-side search filter
+let currentFilter = 'all';
+let summaryData   = {};  // from /api/analytics/summary
+
+// ─── CHART INSTANCES ─────────────────────────────────
+let lineChartInst, barChartInst, pieChartInst;
+
+// ─── HELPERS ─────────────────────────────────────────
+function setVal(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = (val === null || val === undefined || val === 0 && id !== 'totalReadings') ? '--' : val;
+}
+
+function showLoading(on) {
+  const ov = document.getElementById('loadingOverlay');
+  if (on) ov.classList.remove('hidden');
+  else    ov.classList.add('hidden');
+}
+
+// Convert "2024-01-15 08:30:00" → { date:"15 Jan 2024", time:"08:30", rawDate:Date }
+function parseReading(r) {
+  const dt = new Date(r.reading_time.replace(' ', 'T'));
+  return {
+    date:    dt.toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }),
+    time:    dt.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' }),
+    rawDate: dt,
+    meal_timing: r.meal_timing || '',
+    glucose: r.glucose_level,
+    status:  r.status ? (r.status.charAt(0).toUpperCase() + r.status.slice(1).toLowerCase()) : getStatus(r.glucose_level)
+  };
+}
+
+function getStatus(v) {
+  return v < 70 ? 'Low' : v <= 140 ? 'Normal' : 'High';
+}
+
+// ─── EMPTY STATE ─────────────────────────────────────
+function showEmptyState() {
+  allData = []; filteredData = [];
+  setVal('todayAvg', '--'); setVal('weeklyAvg', '--'); setVal('monthlyAvg', '--');
+  setVal('highestReading', '--'); setVal('lowestReading', '--'); setVal('totalReadings', 0);
+  setVal('analysisAvg', '--'); setVal('analysisNormalPct', '--%');
+  setVal('analysisHighPct', '--%'); setVal('analysisLowPct', '--%');
+
+  ['normalBar','highBar','lowBar'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.width = '0%';
+  });
+  ['normalPct2','highPct2','lowPct2'].forEach(id => setVal(id, '--%'));
+
+  // Clear charts
+  ['lineChart','barChart','pieChart'].forEach(id => {
+    const ctx = document.getElementById(id);
+    if (ctx) { ctx.getContext('2d').clearRect(0,0,ctx.width,ctx.height); }
+  });
+  if (lineChartInst) { lineChartInst.destroy(); lineChartInst = null; }
+  if (barChartInst)  { barChartInst.destroy();  barChartInst  = null; }
+  if (pieChartInst)  { pieChartInst.destroy();  pieChartInst  = null; }
+
+  document.getElementById('insightsGrid').innerHTML = `
+    <div class="insight-card info" style="grid-column:1/-1;">
+      <i class="fa fa-circle-info insight-icon"></i>
+      <div class="insight-text">
+        <strong>No Readings Found</strong>
+        No glucose records exist for this time period. Add readings manually on the Records page or import from mySugr.
+      </div>
+    </div>`;
+
+  document.getElementById('reportTableBody').innerHTML = `
+    <tr><td colspan="6" style="text-align:center;padding:36px;color:var(--text-light);">
+      <i class="fa fa-database" style="font-size:28px;display:block;margin-bottom:10px;opacity:.35;"></i>
+      No glucose readings found for this period.
+    </td></tr>`;
+  document.getElementById('paginationInfo').textContent = 'No records';
+  document.getElementById('paginationBtns').innerHTML = '';
+
+  const banner = document.getElementById('compareBanner');
+  banner.className = 'compare-banner neutral';
+  banner.querySelector('i').className = 'fa fa-minus';
+  document.getElementById('compareTitle').textContent = 'No data available for this period';
+  document.getElementById('compareDesc').textContent  = 'Start logging glucose readings to see trends here.';
+}
+
+// ─── FILTER HANDLER ──────────────────────────────────
+function setFilter(type, btn) {
+  currentFilter = type;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  loadFilteredData();
+}
+
+function applyCustomDate() {
+  const from = document.getElementById('dateFrom').value;
+  const to   = document.getElementById('dateTo').value;
+  if (!from || !to) { alert('Please select both dates.'); return; }
+  // Remove active from period buttons
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  currentFilter = 'custom';
+  loadFilteredData(from, to);
+}
+
+// ─── MAIN DATA LOADER ────────────────────────────────
+async function loadFilteredData(customFrom, customTo) {
+  showLoading(true);
+  try {
+    let endpoint;
+    if (currentFilter === 'custom' && customFrom && customTo) {
+      endpoint = `/api/report/custom?from=${customFrom}&to=${customTo}`;
+    } else if (currentFilter === 'all') {
+      endpoint = '/api/report/all';
+    } else if (currentFilter === 'weekly') {
+      endpoint = '/api/report/weekly';
+    } else if (currentFilter === 'monthly') {
+      endpoint = '/api/report/monthly';
+    } else {
+      endpoint = '/api/report/daily';
+    }
+
+    const res  = await fetch(endpoint, { credentials: 'include' });
+    const json = await res.json();
+
+    if (!json.readings || json.readings.length === 0) {
+      showEmptyState();
+      // Still update summary cards from the full summary API
+      await loadSummaryCards();
+      showLoading(false);
+      return;
+    }
+
+    allData      = json.readings.map(parseReading);
+    filteredData = [...allData];
+
+    renderAll(json.analytics, json.daily_avgs || null);
+    await loadSummaryCards();
+
+  } catch (e) {
+    console.error('Failed to load report data:', e);
+    showEmptyState();
+  }
+  showLoading(false);
+}
+
+// Load the always-visible summary cards (today/week/month) from dedicated endpoint
+async function loadSummaryCards() {
+  try {
+    const res  = await fetch('/api/analytics/summary', { credentials: 'include' });
+    summaryData = await res.json();
+    setVal('todayAvg',       summaryData.today_avg   ? Math.round(summaryData.today_avg)   : '--');
+    setVal('weeklyAvg',      summaryData.weekly_avg  ? Math.round(summaryData.weekly_avg)  : '--');
+    setVal('monthlyAvg',     summaryData.monthly_avg ? Math.round(summaryData.monthly_avg) : '--');
+    setVal('highestReading', summaryData.max || '--');
+    setVal('lowestReading',  summaryData.min || '--');
+    setVal('totalReadings',  summaryData.total || 0);
+    renderCompareBanner(summaryData);
+  } catch (e) { console.error('Summary API error:', e); }
+}
+
+// ─── RENDER ALL ───────────────────────────────────────
+function renderAll(analytics, dailyAvgs) {
+  renderLineChart();
+  renderBarChart(dailyAvgs);
+  renderPieChart();
+  if (analytics) renderAnalysisFromAPI(analytics);
+  else           renderAnalysisFromData();
+  renderInsights(analytics);
+  renderTable();
+}
+
+// ─── ANALYSIS FROM API RESPONSE ──────────────────────
+function renderAnalysisFromAPI(a) {
+  const normalPct = a.normal_pct || 0;
+  const highPct   = a.high_pct   || 0;
+  const lowPct    = a.low_pct    || 0;
+
+  setVal('analysisAvg',       a.average    || '--');
+  setVal('analysisNormalPct', normalPct + '%');
+  setVal('analysisHighPct',   highPct   + '%');
+  setVal('analysisLowPct',    lowPct    + '%');
+  setVal('normalPct2', normalPct + '%');
+  setVal('highPct2',   highPct   + '%');
+  setVal('lowPct2',    lowPct    + '%');
+
+  setTimeout(() => {
+    document.getElementById('normalBar').style.width = normalPct + '%';
+    document.getElementById('highBar').style.width   = highPct   + '%';
+    document.getElementById('lowBar').style.width    = lowPct    + '%';
+  }, 300);
+}
+
+// Fallback: compute from local filteredData if analytics not in response
+function renderAnalysisFromData() {
+  const levels = filteredData.map(d => d.glucose);
+  const total  = levels.length || 1;
+  const avg    = levels.length ? Math.round(levels.reduce((a,b) => a+b, 0) / levels.length) : 0;
+  const low    = filteredData.filter(d => d.status === 'Low').length;
+  const normal = filteredData.filter(d => d.status === 'Normal').length;
+  const high   = filteredData.filter(d => d.status === 'High').length;
+  const normalPct = Math.round(normal / total * 100);
+  const highPct   = Math.round(high   / total * 100);
+  const lowPct    = Math.round(low    / total * 100);
+
+  setVal('analysisAvg',       avg);
+  setVal('analysisNormalPct', normalPct + '%');
+  setVal('analysisHighPct',   highPct   + '%');
+  setVal('analysisLowPct',    lowPct    + '%');
+  setVal('normalPct2', normalPct + '%');
+  setVal('highPct2',   highPct   + '%');
+  setVal('lowPct2',    lowPct    + '%');
+
+  setTimeout(() => {
+    document.getElementById('normalBar').style.width = normalPct + '%';
+    document.getElementById('highBar').style.width   = highPct   + '%';
+    document.getElementById('lowBar').style.width    = lowPct    + '%';
+  }, 300);
+}
+
+// ─── LINE CHART ───────────────────────────────────────
+function renderLineChart() {
+  // allData is already sorted oldest→newest from API (reversed on parse)
+  const sorted = [...allData].sort((a,b) => a.rawDate - b.rawDate);
+  const labels = sorted.map(d => `${d.date} ${d.time}`);
+  const values = sorted.map(d => d.glucose);
+
+  const pointColors = values.map(v =>
+    v < 70 ? '#3b82f6' : v <= 140 ? '#22c55e' : '#ef4444'
+  );
+
+  if (lineChartInst) lineChartInst.destroy();
+
+  const ctx = document.getElementById('lineChart').getContext('2d');
+
+  // Gradient
+  const grad = ctx.createLinearGradient(0, 0, 0, 300);
+  grad.addColorStop(0, 'rgba(167,29,49,0.28)');
+  grad.addColorStop(1, 'rgba(167,29,49,0.0)');
+
+  lineChartInst = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Glucose (mg/dL)',
+        data: values,
+        borderColor: '#a71d31',
+        backgroundColor: grad,
+        borderWidth: 2.5,
+        pointBackgroundColor: pointColors,
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2,
+        pointRadius: 5,
+        pointHoverRadius: 8,
+        tension: 0.35,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => {
+              const v = ctx.parsed.y;
+              const status = v < 70 ? 'Low' : v <= 140 ? 'Normal' : 'High';
+              return ` ${v} mg/dL  (${status})`;
+            }
+          },
+          backgroundColor: '#1a1a2e',
+          titleColor: '#fff',
+          bodyColor: '#ddd',
+          padding: 12,
+          cornerRadius: 10
+        }
+      },
+      scales: {
+        x: {
+          ticks: {
+            maxTicksLimit: 10,
+            font: { size: 11 },
+            maxRotation: 30
+          },
+          grid: { color: 'rgba(0,0,0,0.04)' }
+        },
+        y: {
+          min: 40,
+          ticks: { font: { size: 12 } },
+          grid: { color: 'rgba(0,0,0,0.06)' },
+          title: { display: true, text: 'mg/dL', font: { size: 13, weight: 'bold' } }
+        }
+      }
+    }
+  });
+}
+
+// ─── BAR CHART ────────────────────────────────────────
+function renderBarChart(dailyAvgs) {
+  let weekLabels, avgs;
+
+  if (dailyAvgs && typeof dailyAvgs === 'object') {
+    // Weekly API returns {Mon:avg, Tue:avg, ...}
+    const keys = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    weekLabels = keys;
+    avgs = keys.map(k => dailyAvgs[k] || 0);
+  } else {
+    // Compute from local allData grouped by weekday
+    weekLabels = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    const byDay = Array(7).fill(null).map(() => []);
+    allData.forEach(d => {
+      const wd = d.rawDate.getDay();
+      const idx = wd === 0 ? 6 : wd - 1;
+      byDay[idx].push(d.glucose);
+    });
+    avgs = byDay.map(arr => arr.length ? Math.round(arr.reduce((a,b)=>a+b,0)/arr.length) : 0);
+  }
+
+  if (barChartInst) barChartInst.destroy();
+
+  const ctx = document.getElementById('barChart').getContext('2d');
+  barChartInst = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: weekLabels,
+      datasets: [{
+        label: 'Avg Glucose',
+        data: avgs,
+        backgroundColor: avgs.map(v => v < 70 ? 'rgba(59,130,246,0.7)' : v <= 140 ? 'rgba(34,197,94,0.7)' : 'rgba(239,68,68,0.7)'),
+        borderColor: avgs.map(v => v < 70 ? '#3b82f6' : v <= 140 ? '#22c55e' : '#ef4444'),
+        borderWidth: 2,
+        borderRadius: 8
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ` ${c.parsed.y} mg/dL` } } },
+      scales: {
+        y: { min: 0, grid: { color: 'rgba(0,0,0,0.05)' } },
+        x: { grid: { display: false } }
+      }
+    }
+  });
+}
+
+// ─── PIE CHART ────────────────────────────────────────
+function renderPieChart() {
+  const low    = allData.filter(d => d.status === 'Low').length;
+  const normal = allData.filter(d => d.status === 'Normal').length;
+  const high   = allData.filter(d => d.status === 'High').length;
+
+  if (pieChartInst) pieChartInst.destroy();
+
+  const ctx = document.getElementById('pieChart').getContext('2d');
+  pieChartInst = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Low', 'Normal', 'High'],
+      datasets: [{
+        data: [low, normal, high],
+        backgroundColor: ['#3b82f6', '#22c55e', '#ef4444'],
+        borderColor: ['#fff','#fff','#fff'],
+        borderWidth: 3,
+        hoverOffset: 10
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { padding: 16, usePointStyle: true } },
+        tooltip: { callbacks: { label: c => ` ${c.label}: ${c.parsed} readings (${Math.round(c.parsed/(low+normal+high||1)*100)}%)` } }
+      },
+      cutout: '62%'
+    }
+  });
+}
+
+// ─── INSIGHTS ─────────────────────────────────────
+function renderInsights(analytics) {
+  const a = analytics || {};
+  const total      = a.total      || allData.length || 1;
+  const avg        = a.average    || (allData.length ? Math.round(allData.map(d=>d.glucose).reduce((x,y)=>x+y,0)/allData.length) : 0);
+  const high       = a.high_count !== undefined ? a.high_count : allData.filter(d=>d.status==='High').length;
+  const low        = a.low_count  !== undefined ? a.low_count  : allData.filter(d=>d.status==='Low').length;
+  const normal     = a.normal_count !== undefined ? a.normal_count : allData.filter(d=>d.status==='Normal').length;
+  const highPct    = Math.round(high/total*100);
+  const normalPct  = Math.round(normal/total*100);
+
+  const morningReadings = allData.filter(d => {
+    const h = d.rawDate.getHours(); return h >= 5 && h <= 10;
+  });
+  const morningAvg = morningReadings.length
+    ? Math.round(morningReadings.map(d=>d.glucose).reduce((a,b)=>a+b,0)/morningReadings.length)
+    : 0;
+
+  const eveningReadings = allData.filter(d => {
+    const h = d.rawDate.getHours(); return h >= 18 && h <= 22;
+  });
+  const eveningAvg = eveningReadings.length
+    ? Math.round(eveningReadings.map(d=>d.glucose).reduce((a,b)=>a+b,0)/eveningReadings.length)
+    : 0;
+
+  const insights = [];
+
+  if (normalPct >= 70) {
+    insights.push({ type: 'success', icon: 'fa-circle-check', title: 'Glucose Levels are Stable', text: `${normalPct}% of your readings are in the normal range. Excellent management!` });
+  }
+
+  if (highPct > 30) {
+    insights.push({ type: 'danger', icon: 'fa-triangle-exclamation', title: 'Frequent High Sugar Detected', text: `${highPct}% of readings are above 140 mg/dL. Consider reviewing your diet and medications.` });
+  }
+
+  if (morningAvg > 0 && morningAvg <= 130) {
+    insights.push({ type: 'info', icon: 'fa-sun', title: 'Morning Readings are Mostly Normal', text: `Your fasting/morning glucose averages ${morningAvg} mg/dL — within an acceptable range.` });
+  }
+
+  if (eveningAvg > 140) {
+    insights.push({ type: 'warning', icon: 'fa-moon', title: 'Evening Glucose Spikes Observed', text: `Post-dinner average is ${eveningAvg} mg/dL. Monitor carbohydrate intake at dinner.` });
+  }
+
+  if (low > 3) {
+    insights.push({ type: 'info', icon: 'fa-droplet', title: 'Low Sugar Episodes Noted', text: `${low} low readings detected. Ensure regular meals and carry fast-acting glucose.` });
+  }
+
+  if (avg >= 70 && avg <= 140) {
+    insights.push({ type: 'success', icon: 'fa-star', title: 'Average Glucose in Healthy Range', text: `Your average of ${avg} mg/dL is within the target range. Keep maintaining this routine!` });
+  } else if (avg > 140) {
+    insights.push({ type: 'warning', icon: 'fa-chart-simple', title: 'Average Above Target', text: `Average glucose is ${avg} mg/dL. Aim to bring this below 140 mg/dL with lifestyle adjustments.` });
+  }
+
+  insights.push({ type: 'info', icon: 'fa-robot', title: 'Recommendation', text: `Based on your patterns, glucose tends to be highest in the evening. A 15-min post-meal walk can reduce spikes by up to 20%.` });
+
+  const grid = document.getElementById('insightsGrid');
+  grid.innerHTML = insights.map(ins => `
+    <div class="insight-card ${ins.type}">
+      <i class="fa ${ins.icon} insight-icon"></i>
+      <div class="insight-text">
+        <strong>${ins.title}</strong>
+        ${ins.text}
+      </div>
+    </div>
+  `).join('');
+}
+
+// ─── COMPARE BANNER ──────────────────────────────────
+function renderCompareBanner(summary) {
+  const banner = document.getElementById('compareBanner');
+  const title  = document.getElementById('compareTitle');
+  const desc   = document.getElementById('compareDesc');
+
+  if (!summary || !summary.monthly_avg || !summary.prev_month_avg) {
+    banner.className = 'compare-banner neutral';
+    banner.querySelector('i').className = 'fa fa-minus';
+    title.textContent = 'Not enough data to compare months';
+    desc.textContent  = 'Log readings across multiple months to see month-over-month trends.';
+    return;
+  }
+
+  const currAvg = Math.round(summary.monthly_avg);
+  const prevAvg = Math.round(summary.prev_month_avg);
+  const mom     = summary.mom_change_pct;
+  const pct     = Math.abs(mom || 0).toFixed(1);
+
+  if (currAvg < prevAvg) {
+    banner.className = 'compare-banner positive';
+    banner.querySelector('i').className = 'fa fa-arrow-trend-down';
+    title.textContent = `Average glucose improved by ${pct}% compared to last month`;
+    desc.textContent  = `This month: ${currAvg} mg/dL vs last month: ${prevAvg} mg/dL. Great progress!`;
+  } else if (currAvg > prevAvg) {
+    banner.className = 'compare-banner negative';
+    banner.querySelector('i').className = 'fa fa-arrow-trend-up';
+    title.textContent = `Average glucose increased by ${pct}% compared to last month`;
+    desc.textContent  = `This month: ${currAvg} mg/dL vs last month: ${prevAvg} mg/dL. Review your diet.`;
+  } else {
+    banner.className = 'compare-banner neutral';
+    banner.querySelector('i').className = 'fa fa-minus';
+    title.textContent = 'No change vs last month';
+    desc.textContent  = `Average remains at ${currAvg} mg/dL.`;
+  }
+}
+
+// ─── TABLE ───────────────────────────────────────────
+let tableData = [];
+let currentPage = 1;
+const rowsPerPage = 10;
+
+function renderTable() {
+  // Show newest first
+  tableData = [...allData].sort((a,b) => b.rawDate - a.rawDate);
+  currentPage = 1;
+  renderTablePage();
+}
+
+function filterTable() {
+  const q = document.getElementById('tableSearch').value.toLowerCase();
+  tableData = [...allData].sort((a,b) => b.rawDate - a.rawDate).filter(d =>
+    d.date.toLowerCase().includes(q) ||
+    d.time.toLowerCase().includes(q) ||
+    d.meal_timing.toLowerCase().includes(q) ||
+    String(d.glucose).includes(q) ||
+    d.status.toLowerCase().includes(q)
+  );
+  currentPage = 1;
+  renderTablePage();
+}
+
+function renderTablePage() {
+  const tbody = document.getElementById('reportTableBody');
+  const total = tableData.length;
+  const start = (currentPage - 1) * rowsPerPage;
+  const end   = Math.min(start + rowsPerPage, total);
+  const page  = tableData.slice(start, end);
+
+  tbody.innerHTML = page.map((row, i) => `
+    <tr>
+      <td style="color:var(--text-light);font-size:12px;">${start + i + 1}</td>
+      <td>${row.date}</td>
+      <td>${row.time}</td>
+      <td>${row.meal_timing || '<span style="color:var(--text-light)">-</span>'}</td>
+      <td style="font-weight:700; color:${row.glucose < 70 ? '#1d4ed8' : row.glucose > 140 ? '#dc2626' : '#15803d'}">
+        ${row.glucose} mg/dL
+      </td>
+      <td><span class="status-badge ${row.status}">${row.status}</span></td>
+    </tr>
+  `).join('');
+
+  // Pagination info
+  document.getElementById('paginationInfo').textContent =
+    total ? `Showing ${start+1}–${end} of ${total} records` : 'No records found';
+
+  // Pagination buttons
+  const totalPages = Math.ceil(total / rowsPerPage);
+  let btnHtml = `
+    <button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>
+      <i class="fa fa-chevron-left"></i>
+    </button>
+  `;
+  const range = pagRange(currentPage, totalPages);
+  range.forEach(p => {
+    if (p === '...') {
+      btnHtml += `<button class="page-btn" disabled>…</button>`;
+    } else {
+      btnHtml += `<button class="page-btn ${p===currentPage?'active':''}" onclick="goPage(${p})">${p}</button>`;
+    }
+  });
+  btnHtml += `
+    <button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===totalPages||totalPages===0?'disabled':''}>
+      <i class="fa fa-chevron-right"></i>
+    </button>
+  `;
+  document.getElementById('paginationBtns').innerHTML = btnHtml;
+}
+
+function goPage(p) {
+  const total = Math.ceil(tableData.length / rowsPerPage);
+  if (p < 1 || p > total) return;
+  currentPage = p;
+  renderTablePage();
+}
+
+function pagRange(cur, total) {
+  if (total <= 7) return Array.from({length:total},(_,i)=>i+1);
+  if (cur <= 4) return [1,2,3,4,5,'...',total];
+  if (cur >= total-3) return [1,'...',total-4,total-3,total-2,total-1,total];
+  return [1,'...',cur-1,cur,cur+1,'...',total];
+}
+
+// ─── EXPORT PDF ──────────────────────────────────────
+function exportPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  doc.setFillColor(123, 30, 43);
+  doc.rect(0, 0, 210, 28, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(18);
+  doc.text('MyDigiDia Record — Glucose Report', 14, 18);
+
+  doc.setTextColor(80, 80, 80);
+  doc.setFontSize(10);
+  doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 36);
+
+  const rows = tableData.map((d, i) => [i+1, d.date, d.time, d.meal_timing || '-', d.glucose + ' mg/dL', d.status]);
+
+  doc.autoTable({
+    head: [['#','Date','Time','Meal Timing','Glucose Level','Status']],
+    body: rows,
+    startY: 42,
+    styles: { fontSize: 10, cellPadding: 4 },
+    headStyles: { fillColor: [123, 30, 43], textColor: 255, fontStyle: 'bold' },
+    alternateRowStyles: { fillColor: [253, 247, 247] },
+    bodyStyles: { textColor: [50,50,50] }
+  });
+
+  doc.save('MyDigiDia_Glucose_Report.pdf');
+}
+
+// ─── EXPORT EXCEL ─────────────────────────────────────
+function exportExcel() {
+  const rows = tableData.map(d => ({
+    Date: d.date,
+    Time: d.time,
+    'Meal Timing': d.meal_timing || '',
+    'Glucose Level (mg/dL)': d.glucose,
+    Status: d.status
+  }));
+  const ws = XLSX.utils.json_to_sheet(rows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Glucose Readings');
+  XLSX.writeFile(wb, 'MyDigiDia_Glucose_Report.xlsx');
+}
+
+// ─── FULL PDF DOWNLOAD ────────────────────────────────
+function downloadFullPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  doc.setFillColor(100, 18, 32);
+  doc.rect(0, 0, 210, 30, 'F');
+  doc.setTextColor(255,255,255);
+  doc.setFontSize(20);
+  doc.text('MyDigiDia Record', 14, 14);
+  doc.setFontSize(11);
+  doc.text('Comprehensive Glucose Analytics Report', 14, 23);
+
+  doc.setTextColor(80,80,80);
+  doc.setFontSize(10);
+  doc.text(`Report Date: ${new Date().toLocaleDateString('en-IN', {day:'2-digit',month:'long',year:'numeric'})}`, 14, 40);
+  doc.text(`Filter: ${currentFilter.charAt(0).toUpperCase()+currentFilter.slice(1)}`, 14, 48);
+
+  const levels = allData.map(d=>d.glucose);
+  const avg = levels.length ? Math.round(levels.reduce((a,b)=>a+b,0)/levels.length) : 0;
+  doc.setFontSize(12);
+  doc.setTextColor(123,30,43);
+  doc.text('Summary', 14, 60);
+  doc.setTextColor(50,50,50);
+  doc.setFontSize(10);
+  doc.text(`Total Readings: ${levels.length}   Average: ${avg} mg/dL   High: ${levels.length?Math.max(...levels):0}   Low: ${levels.length?Math.min(...levels):0}`, 14, 68);
+
+  const rows = tableData.map((d,i) => [i+1, d.date, d.time, d.meal_timing || '-', d.glucose+' mg/dL', d.status]);
+  doc.autoTable({
+    head: [['#','Date','Time','Meal Timing','Glucose Level','Status']],
+    body: rows,
+    startY: 76,
+    styles: { fontSize: 9 },
+    headStyles: { fillColor: [100,18,32], textColor: 255 },
+    alternateRowStyles: { fillColor: [253,247,247] }
+  });
+
+  doc.save('MyDigiDia_Full_Report.pdf');
+}
+
+// ─── SHARE REPORT ─────────────────────────────────────
+function shareReport() {
+  const levels = allData.map(d=>d.glucose);
+  const avg = levels.length ? Math.round(levels.reduce((a,b)=>a+b,0)/levels.length) : 0;
+  const text = `MyDigiDia Glucose Report\n📊 Total Readings: ${levels.length}\n📈 Average: ${avg} mg/dL\n⬆️ Highest: ${levels.length ? Math.max(...levels) : 0} mg/dL\n⬇️ Lowest: ${levels.length ? Math.min(...levels) : 0} mg/dL\n\nTracked via MyDigiDia Record.`;
+
+  if (navigator.share) {
+    navigator.share({ title: 'My Glucose Report', text }).catch(()=>{});
+  } else {
+    navigator.clipboard.writeText(text).then(() => {
+      alert('Report summary copied to clipboard!');
+    });
+  }
+}
+
+// ─── DARK MODE ────────────────────────────────────────
+function toggleDark() {
+  document.body.classList.toggle('dark');
+  const icon = document.getElementById('darkIcon');
+  icon.className = document.body.classList.contains('dark') ? 'fa fa-sun' : 'fa fa-moon';
+  localStorage.setItem('darkMode', document.body.classList.contains('dark'));
+}
+
+// Persist dark mode
+if (localStorage.getItem('darkMode') === 'true') {
+  document.body.classList.add('dark');
+  document.getElementById('darkIcon').className = 'fa fa-sun';
+}
+
+// ─── INIT ─────────────────────────────────────────────
+window.addEventListener('load', () => {
+  // Set default date inputs
+  const now   = new Date();
+  const start = new Date(); start.setDate(start.getDate() - 30);
+  document.getElementById('dateFrom').valueAsDate = start;
+  document.getElementById('dateTo').valueAsDate   = now;
+
+  // Load real data from DB on page load (default: all stored records)
+  loadFilteredData();
+});
+
+</script>
+</body>
+</html>

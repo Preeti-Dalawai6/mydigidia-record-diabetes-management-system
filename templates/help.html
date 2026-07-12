@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Help & Support - MyDigiDia Record</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#fdf7f7;color:#333;overflow-x:hidden;}
+
+/* NAVBAR — matches main.html exactly */
+nav{width:100%;background:linear-gradient(90deg,#7b1e2b,#b23a48);padding:18px 50px;display:flex;justify-content:space-between;align-items:center;color:#fff;box-shadow:0 4px 15px rgba(0,0,0,0.08);position:sticky;top:0;z-index:1000;}
+nav .logo{font-size:26px;font-weight:bold;display:flex;align-items:center;gap:8px;text-decoration:none;color:white;}
+nav ul{display:flex;list-style:none;gap:24px;}
+nav ul li a{text-decoration:none;color:white;font-size:16px;padding:7px 13px;border-radius:9px;transition:0.2s;display:flex;align-items:center;gap:6px;}
+nav ul li a:hover,nav ul li a.active{background:rgba(255,255,255,0.2);}
+
+/* HERO */
+.help-hero{background:linear-gradient(135deg,#641220 0%,#a71d31 50%,#c0392b 100%);padding:70px 8% 90px;position:relative;overflow:hidden;}
+.help-hero::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='30' cy='30' r='4' fill='%23ffffff' fill-opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;}
+.help-hero::after{content:'';position:absolute;bottom:-2px;left:0;right:0;height:60px;background:#fdf7f7;clip-path:ellipse(55% 100% at 50% 100%);}
+.hero-inner{position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:40px;max-width:1200px;margin:0 auto;}
+.hero-text-block{flex:1;}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);color:#fff;padding:6px 16px;border-radius:30px;font-size:13px;font-weight:600;margin-bottom:20px;backdrop-filter:blur(8px);}
+.help-hero h1{font-size:clamp(32px,5vw,54px);color:#fff;font-weight:800;line-height:1.15;margin-bottom:16px;}
+.help-hero h1 span{color:#ffd6dc;}
+.help-hero p{color:rgba(255,255,255,0.82);font-size:17px;line-height:1.75;max-width:560px;margin-bottom:32px;}
+.search-wrap-pos{position:relative;max-width:520px;}
+.search-wrap{display:flex;background:white;border-radius:14px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.18);}
+.search-wrap input{flex:1;border:none;outline:none;padding:16px 20px;font-size:15px;color:#333;}
+.search-wrap button{background:#a71d31;color:white;border:none;padding:16px 24px;cursor:pointer;font-size:17px;transition:background 0.2s;}
+.search-wrap button:hover{background:#7b1e2b;}
+.search-results{position:absolute;top:calc(100% + 8px);left:0;right:0;background:white;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,0.15);overflow:hidden;z-index:100;display:none;}
+.search-results.active{display:block;}
+.search-result-item{padding:12px 18px;cursor:pointer;font-size:14px;color:#333;display:flex;align-items:center;gap:10px;transition:background 0.2s;}
+.search-result-item:hover{background:#fde8eb;color:#a71d31;}
+.search-result-item i{color:#a71d31;width:18px;}
+.hero-icon-block{display:flex;align-items:center;justify-content:center;width:200px;height:200px;background:rgba(255,255,255,0.1);border-radius:50%;border:2px solid rgba(255,255,255,0.2);backdrop-filter:blur(10px);flex-shrink:0;animation:floatPulse 4s ease-in-out infinite;}
+.hero-icon-block i{font-size:80px;color:rgba(255,255,255,0.9);}
+@keyframes floatPulse{0%,100%{transform:translateY(0) scale(1);}50%{transform:translateY(-12px) scale(1.03);}}
+
+/* STATS STRIP */
+.stats-section{padding:0 5%;position:relative;z-index:10;margin-top:-22px;}
+.stats-strip{display:flex;background:white;box-shadow:0 4px 24px rgba(122,31,43,0.08);border-radius:18px;max-width:900px;margin:0 auto;overflow:hidden;}
+.stat-item{flex:1;text-align:center;padding:22px 10px;border-right:1px solid #f0e0e4;transition:background 0.2s;}
+.stat-item:last-child{border-right:none;}
+.stat-item:hover{background:#fdf0f2;}
+.stat-num{font-size:26px;font-weight:800;color:#a71d31;}
+.stat-label{font-size:12px;color:#888;margin-top:3px;}
+
+/* SECTION WRAPPER */
+.section-wrap{max-width:1200px;margin:0 auto;padding:0 5%;}
+.sec-title{text-align:center;margin-bottom:48px;}
+.sec-title h2{font-size:clamp(24px,3vw,36px);color:#641220;font-weight:800;margin-bottom:10px;}
+.sec-title p{color:#777;font-size:16px;max-width:560px;margin:0 auto;}
+.sec-line{width:60px;height:4px;background:linear-gradient(90deg,#a71d31,#e05269);border-radius:4px;margin:12px auto 0;}
+
+/* FEATURE CARDS */
+.cards-section{padding:80px 0 60px;}
+.cards-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;}
+.feature-card{background:white;border-radius:20px;padding:30px 24px;box-shadow:0 4px 24px rgba(122,31,43,0.07);border:1px solid rgba(167,29,49,0.07);transition:all 0.3s cubic-bezier(0.25,0.8,0.25,1);position:relative;overflow:hidden;cursor:default;display:flex;flex-direction:column;}
+.feature-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#7b1e2b,#e05269);transform:scaleX(0);transform-origin:left;transition:transform 0.3s;}
+.feature-card:hover{transform:translateY(-10px);box-shadow:0 16px 48px rgba(122,31,43,0.15);}
+.feature-card:hover::before{transform:scaleX(1);}
+.card-icon-wrap{width:60px;height:60px;background:linear-gradient(135deg,#fde8eb,#fdf0f2);border-radius:16px;display:flex;align-items:center;justify-content:center;margin-bottom:18px;transition:all 0.3s;}
+.feature-card:hover .card-icon-wrap{background:linear-gradient(135deg,#a71d31,#e05269);}
+.card-icon-wrap i{font-size:26px;color:#a71d31;transition:color 0.3s;}
+.feature-card:hover .card-icon-wrap i{color:white;}
+.feature-card h3{color:#641220;font-size:17px;font-weight:700;margin-bottom:10px;}
+.feature-card p{color:#666;font-size:14px;line-height:1.65;flex:1;}
+.learn-btn{margin-top:20px;display:inline-flex;align-items:center;gap:6px;background:transparent;border:2px solid #a71d31;color:#a71d31;padding:9px 18px;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s;align-self:flex-start;text-decoration:none;}
+.learn-btn:hover{background:#a71d31;color:white;transform:translateX(3px);}
+.learn-btn i{transition:transform 0.2s;}
+.learn-btn:hover i{transform:translateX(3px);}
+.feature-card.emergency{border-color:rgba(220,53,69,0.2);}
+.feature-card.emergency .card-icon-wrap{background:linear-gradient(135deg,#ffe0e3,#ffd0d5);}
+.feature-card.emergency .card-icon-wrap i{color:#dc3545;}
+.feature-card.emergency:hover .card-icon-wrap{background:linear-gradient(135deg,#dc3545,#e05269);}
+.feature-card.emergency:hover .card-icon-wrap i{color:white;}
+.feature-card.emergency .learn-btn{border-color:#dc3545;color:#dc3545;}
+.feature-card.emergency .learn-btn:hover{background:#dc3545;color:white;}
+
+/* FAQ */
+.faq-section{padding:70px 0;background:linear-gradient(180deg,#fdf7f7 0%,#fff5f5 100%);}
+.faq-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
+.faq-item{background:white;border-radius:14px;box-shadow:0 2px 16px rgba(122,31,43,0.06);overflow:hidden;border:1px solid rgba(167,29,49,0.06);transition:box-shadow 0.2s;}
+.faq-item:hover{box-shadow:0 6px 24px rgba(122,31,43,0.12);}
+.faq-question{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;cursor:pointer;user-select:none;}
+.faq-question span{font-weight:600;color:#641220;font-size:15px;flex:1;padding-right:12px;}
+.faq-icon{width:30px;height:30px;background:#fde8eb;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#a71d31;font-size:13px;flex-shrink:0;transition:all 0.3s;}
+.faq-item.open .faq-icon{background:#a71d31;color:white;transform:rotate(45deg);}
+.faq-answer{max-height:0;overflow:hidden;transition:max-height 0.4s cubic-bezier(0.4,0,0.2,1),padding 0.3s;padding:0 22px;color:#666;font-size:14px;line-height:1.7;}
+.faq-item.open .faq-answer{max-height:200px;padding-bottom:18px;}
+
+/* TIPS */
+.tips-section{padding:70px 0;}
+.tips-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:20px;}
+.tip-card{background:white;border-radius:18px;padding:28px 18px;text-align:center;box-shadow:0 4px 20px rgba(122,31,43,0.07);border-top:4px solid transparent;transition:all 0.3s;}
+.tip-card:hover{transform:translateY(-6px);box-shadow:0 12px 36px rgba(122,31,43,0.14);}
+.tip-card:nth-child(1){border-top-color:#3b82f6;}.tip-card:nth-child(2){border-top-color:#22c55e;}.tip-card:nth-child(3){border-top-color:#f59e0b;}.tip-card:nth-child(4){border-top-color:#a71d31;}.tip-card:nth-child(5){border-top-color:#dc3545;}
+.tip-icon{font-size:36px;margin-bottom:14px;display:block;}
+.tip-card:nth-child(1) .tip-icon{color:#3b82f6;}.tip-card:nth-child(2) .tip-icon{color:#22c55e;}.tip-card:nth-child(3) .tip-icon{color:#f59e0b;}.tip-card:nth-child(4) .tip-icon{color:#a71d31;}.tip-card:nth-child(5) .tip-icon{color:#dc3545;}
+.tip-card h4{font-size:14px;font-weight:700;color:#641220;margin-bottom:8px;}
+.tip-card p{font-size:12px;color:#777;line-height:1.6;}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:2000;align-items:center;justify-content:center;backdrop-filter:blur(4px);padding:20px;}
+.modal-overlay.active{display:flex;}
+.modal-box{background:white;border-radius:22px;padding:36px 32px;max-width:520px;width:100%;box-shadow:0 24px 80px rgba(0,0,0,0.2);animation:modalIn 0.3s cubic-bezier(0.25,0.8,0.25,1);position:relative;max-height:85vh;overflow-y:auto;}
+@keyframes modalIn{from{opacity:0;transform:scale(0.9) translateY(20px);}to{opacity:1;transform:scale(1) translateY(0);}}
+.modal-close{position:absolute;top:14px;right:16px;background:#fde8eb;border:none;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:16px;color:#a71d31;display:flex;align-items:center;justify-content:center;transition:all 0.2s;}
+.modal-close:hover{background:#a71d31;color:white;}
+.modal-icon{width:64px;height:64px;background:linear-gradient(135deg,#fde8eb,#fdf0f2);border-radius:18px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;}
+.modal-icon i{font-size:30px;color:#a71d31;}
+.modal-box h3{color:#641220;font-size:22px;font-weight:800;margin-bottom:10px;}
+.modal-box p{color:#666;font-size:14px;line-height:1.75;margin-bottom:10px;}
+.modal-box ul{padding-left:18px;color:#666;font-size:14px;line-height:1.9;}
+.modal-box ul li{margin-bottom:4px;}
+.modal-step{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px;background:#fdf7f7;border-radius:12px;padding:14px;}
+.step-num{min-width:28px;height:28px;background:linear-gradient(135deg,#a71d31,#e05269);border-radius:50%;color:white;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;}
+.step-txt{font-size:14px;color:#555;line-height:1.6;}
+
+/* SCROLL TOP */
+.scroll-top{position:fixed;bottom:30px;right:30px;background:linear-gradient(135deg,#a71d31,#c0392b);color:white;width:48px;height:48px;border-radius:50%;border:none;cursor:pointer;font-size:18px;box-shadow:0 4px 16px rgba(167,29,49,0.4);opacity:0;transition:all 0.3s;display:flex;align-items:center;justify-content:center;z-index:999;}
+.scroll-top.visible{opacity:1;}
+.scroll-top:hover{transform:translateY(-3px);}
+footer{background:#641220;color:rgba(255,255,255,0.8);text-align:center;padding:22px;font-size:14px;}
+footer a{color:rgba(255,255,255,0.9);text-decoration:none;}
+
+/* REVEAL */
+.reveal{opacity:0;transform:translateY(30px);transition:opacity 0.6s ease,transform 0.6s ease;}
+.reveal.visible{opacity:1;transform:translateY(0);}
+
+/* RESPONSIVE */
+@media(max-width:1100px){.cards-grid{grid-template-columns:repeat(2,1fr);}.tips-grid{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:900px){
+  nav{padding:14px 20px;}nav ul{flex-wrap:wrap;justify-content:center;gap:10px;}nav ul li a span{display:none;}
+  .hero-inner{flex-direction:column;text-align:center;}.hero-icon-block{width:140px;height:140px;}.hero-icon-block i{font-size:56px;}
+  .search-wrap-pos{margin:0 auto;}.stats-strip{flex-wrap:wrap;}.stat-item{flex:1 1 45%;border-right:none;border-bottom:1px solid #f0e0e4;}
+  .faq-grid{grid-template-columns:1fr;}
+}
+@media(max-width:640px){.cards-grid{grid-template-columns:1fr;}.tips-grid{grid-template-columns:repeat(2,1fr);}.help-hero{padding:50px 6% 70px;}}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="logo"><i class="fa-solid fa-heart-pulse"></i> MyDigiDia Record</a>
+  <ul>
+    <li><a href="/"><i class="fa fa-home"></i><span>Home</span></a></li>
+    {% if session.get('user_id') %}
+      <li><a href="/record"><i class="fa fa-folder"></i><span>Records</span></a></li>
+      <li><a href="/reports_page"><i class="fa fa-chart-line"></i><span>Reports</span></a></li>
+      <li><a href="/diet"><i class="fa fa-utensils"></i><span>Diet</span></a></li>
+      <li><a href="/settings"><i class="fa fa-gear"></i><span>Settings</span></a></li>
+      <li><a href="/profile"><i class="fa fa-circle-user"></i><span>Profile</span></a></li>
+    {% else %}
+      <li><a href="/login_page"><i class="fa fa-folder"></i><span>Records</span></a></li>
+      <li><a href="/login_page"><i class="fa fa-chart-line"></i><span>Reports</span></a></li>
+      <li><a href="/login_page"><i class="fa fa-utensils"></i><span>Diet</span></a></li>
+      <li><a href="/login_page"><i class="fa fa-gear"></i><span>Settings</span></a></li>
+      <li><a href="/login_page"><i class="fa fa-circle-user"></i><span>User</span></a></li>
+    {% endif %}
+    <li><a href="/help" class="active"><i class="fa fa-circle-question"></i><span>Help</span></a></li>
+    {% if session.get('user') %}
+      <li><a href="/logout"><i class="fa fa-sign-out-alt"></i><span>Logout</span></a></li>
+    {% else %}
+      <li><a href="/login_page"><i class="fa fa-user"></i><span>Login</span></a></li>
+    {% endif %}
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="help-hero">
+  <div class="hero-inner">
+    <div class="hero-text-block">
+      <div class="hero-badge"><i class="fa-solid fa-shield-heart"></i> MyDigiDia Medical Support Center</div>
+      <h1>Help &amp; <span>Learn More</span></h1>
+      <p>Your complete guide to managing diabetes with MyDigiDia Record. Find answers, explore features, and get expert support — all in one place.</p>
+      <div class="search-wrap-pos">
+        <div class="search-wrap">
+          <input type="text" id="helpSearch" placeholder="Search help topics… e.g. 'add record', 'CSV'" autocomplete="off">
+          <button type="button" onclick="doSearch()"><i class="fa fa-search"></i></button>
+        </div>
+        <div class="search-results" id="searchResults"></div>
+      </div>
+    </div>
+    <div class="hero-icon-block"><i class="fa-solid fa-stethoscope"></i></div>
+  </div>
+</section>
+
+<!-- STATS STRIP -->
+<div class="stats-section">
+  <div class="stats-strip">
+    <div class="stat-item"><div class="stat-num">8+</div><div class="stat-label">Help Topics</div></div>
+    <div class="stat-item"><div class="stat-num">11</div><div class="stat-label">FAQ Answers</div></div>
+    <div class="stat-item"><div class="stat-num">5</div><div class="stat-label">Daily Tips</div></div>
+    <div class="stat-item"><div class="stat-num">3</div><div class="stat-label">Support Channels</div></div>
+    <div class="stat-item"><div class="stat-num">24/7</div><div class="stat-label">Available</div></div>
+  </div>
+</div>
+
+<!-- FEATURE CARDS -->
+<section class="cards-section" id="features">
+  <div class="section-wrap">
+    <div class="sec-title reveal">
+      <h2>How Can We Help You?</h2>
+      <p>Browse our comprehensive guides and support resources tailored for diabetes management.</p>
+      <div class="sec-line"></div>
+    </div>
+    <div class="cards-grid">
+      <div class="feature-card reveal" onclick="openModal('modal-add-record')">
+        <div class="card-icon-wrap"><i class="fa-solid fa-notes-medical"></i></div>
+        <h3>How to Add Records</h3>
+        <p>Step-by-step guide to logging your daily blood glucose readings and medical notes accurately.</p>
+        <a class="learn-btn">Learn More <i class="fa fa-arrow-right"></i></a>
+      </div>
+      <div class="feature-card reveal" onclick="openModal('modal-csv')">
+        <div class="card-icon-wrap"><i class="fa-solid fa-file-csv"></i></div>
+        <h3>Import CSV Data</h3>
+        <p>Import your existing glucose records from mySugr or other apps using our CSV import tool.</p>
+        <a class="learn-btn">Learn More <i class="fa fa-arrow-right"></i></a>
+      </div>
+      <div class="feature-card reveal" onclick="openModal('modal-reports')">
+        <div class="card-icon-wrap"><i class="fa-solid fa-chart-line"></i></div>
+        <h3>Reports &amp; Analytics</h3>
+        <p>Understand your health trends through interactive graphs, HbA1c estimates, and time-in-range analysis.</p>
+        <a class="learn-btn">Learn More <i class="fa fa-arrow-right"></i></a>
+      </div>
+      <div class="feature-card reveal" onclick="openModal('modal-medication')">
+        <div class="card-icon-wrap"><i class="fa-solid fa-pills"></i></div>
+        <h3>Medication Reminders</h3>
+        <p>Set up alerts for insulin doses and medication times so you never miss a critical health routine.</p>
+        <a class="learn-btn">Learn More <i class="fa fa-arrow-right"></i></a>
+      </div>
+      <div class="feature-card reveal" onclick="openModal('modal-security')">
+        <div class="card-icon-wrap"><i class="fa-solid fa-shield-halved"></i></div>
+        <h3>Account &amp; Security</h3>
+        <p>Manage login credentials, reset passwords, and keep your personal medical data fully secure.</p>
+        <a class="learn-btn">Learn More <i class="fa fa-arrow-right"></i></a>
+      </div>
+      <div class="feature-card reveal" onclick="openModal('modal-diet')">
+        <div class="card-icon-wrap"><i class="fa-solid fa-utensils"></i></div>
+        <h3>Diet &amp; Nutrition Guide</h3>
+        <p>Learn which foods stabilize blood sugar, what to avoid, and how to plan a diabetes-friendly diet.</p>
+        <a class="learn-btn">Learn More <i class="fa fa-arrow-right"></i></a>
+      </div>
+      <div class="feature-card reveal" onclick="document.getElementById('faq-section').scrollIntoView({behavior:'smooth'})">
+        <div class="card-icon-wrap"><i class="fa-solid fa-circle-question"></i></div>
+        <h3>FAQ</h3>
+        <p>Find quick answers to the most commonly asked questions about using MyDigiDia Record.</p>
+        <a class="learn-btn">View FAQ <i class="fa fa-arrow-right"></i></a>
+      </div>
+      <div class="feature-card emergency reveal" onclick="openModal('modal-emergency')">
+        <div class="card-icon-wrap"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <h3>Emergency Diabetes Tips</h3>
+        <p>Recognize warning signs of hypoglycemia and hyperglycemia — critical knowledge for every patient.</p>
+        <a class="learn-btn">Learn More <i class="fa fa-arrow-right"></i></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq-section" id="faq-section">
+  <div class="section-wrap">
+    <div class="sec-title reveal">
+      <h2>Frequently Asked Questions</h2>
+      <p>Quick answers to common questions about diabetes management and MyDigiDia Record.</p>
+      <div class="sec-line"></div>
+    </div>
+    <div class="faq-grid reveal">
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)"><span>How do I add a glucose reading?</span><div class="faq-icon"><i class="fa fa-plus"></i></div></div>
+        <div class="faq-answer">Login → Go to Records → Click "Add Record" → Enter glucose level, date, and reading type → Click Save. Your reading appears in analytics immediately.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)"><span>What is a normal blood glucose level?</span><div class="faq-icon"><i class="fa fa-plus"></i></div></div>
+        <div class="faq-answer">Fasting: 70–100 mg/dL (normal), 100–125 (pre-diabetic), 126+ (diabetic). Post-meal (2 hrs): below 140 mg/dL is normal. Always confirm targets with your doctor.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)"><span>Can I delete or edit my records?</span><div class="faq-icon"><i class="fa fa-plus"></i></div></div>
+        <div class="faq-answer">Yes. Each record on the Records page has Edit and Delete buttons. Deletions are permanent and cannot be undone, so please confirm before deleting.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)"><span>What foods should I avoid with high blood sugar?</span><div class="faq-icon"><i class="fa fa-plus"></i></div></div>
+        <div class="faq-answer">Avoid sugary drinks, white bread, white rice, fried foods, and processed snacks. Prefer whole grains, legumes, and non-starchy vegetables for stable glucose levels.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)"><span>How often should I check my glucose?</span><div class="faq-icon"><i class="fa fa-plus"></i></div></div>
+        <div class="faq-answer">Type 1: 4–10 times daily. Type 2 on insulin: 2–4 times daily. Type 2 on oral meds: fasting and 2-hrs post-meal as advised by your doctor.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)"><span>What exercise is best for diabetes?</span><div class="faq-icon"><i class="fa fa-plus"></i></div></div>
+        <div class="faq-answer">Walking 30 min/day, yoga, cycling, and light resistance training are excellent. Aim for 150 minutes of moderate activity per week. Check glucose before and after exercise.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)"><span>Can stress affect my blood sugar?</span><div class="faq-icon"><i class="fa fa-plus"></i></div></div>
+        <div class="faq-answer">Yes. Stress releases cortisol which raises glucose. Meditation, deep breathing, regular sleep, and gentle exercise significantly help in long-term glucose control.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)"><span>How do I import data from mySugr?</span><div class="faq-icon"><i class="fa fa-plus"></i></div></div>
+        <div class="faq-answer">Export from mySugr (Settings → Export Data → CSV). In MyDigiDia, go to Records → Import CSV → Select the file → Map columns → Click Import. Duplicates are auto-skipped.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)"><span>Should I drink more water?</span><div class="faq-icon"><i class="fa fa-plus"></i></div></div>
+        <div class="faq-answer">Absolutely. 8–10 glasses/day helps kidneys flush excess glucose, reduces dehydration from high blood sugar, and supports overall metabolic health.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)"><span>Is my medical data safe and private?</span><div class="faq-icon"><i class="fa fa-plus"></i></div></div>
+        <div class="faq-answer">Yes. Passwords are hashed and never stored in plain text. Your records are accessible only through your authenticated account. Always log out on shared devices.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)"><span>Can I skip meals if my sugar is high?</span><div class="faq-icon"><i class="fa fa-plus"></i></div></div>
+        <div class="faq-answer">No — skipping meals destabilizes glucose and may trigger hypoglycemia if you're on medication. Always follow a balanced meal schedule and consult your doctor.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- QUICK TIPS -->
+<section class="tips-section" id="tips">
+  <div class="section-wrap">
+    <div class="sec-title reveal">
+      <h2>Quick Diabetes Tips</h2>
+      <p>Daily reminders to keep your blood sugar in a healthy range.</p>
+      <div class="sec-line"></div>
+    </div>
+    <div class="tips-grid reveal">
+      <div class="tip-card">
+        <i class="fa-solid fa-droplet tip-icon"></i>
+        <h4>Stay Hydrated</h4>
+        <p>Drink 8–10 glasses of water daily. Hydration helps kidneys remove excess glucose and reduces fatigue.</p>
+      </div>
+      <div class="tip-card">
+        <i class="fa-solid fa-leaf tip-icon"></i>
+        <h4>Eat Smart</h4>
+        <p>Choose high-fiber, low-GI foods. Fill half your plate with non-starchy vegetables at every meal.</p>
+      </div>
+      <div class="tip-card">
+        <i class="fa-solid fa-person-walking tip-icon"></i>
+        <h4>Move Daily</h4>
+        <p>Walk 30 minutes every day. A post-meal 10-minute walk can lower blood sugar by 15–20%.</p>
+      </div>
+      <div class="tip-card">
+        <i class="fa-solid fa-syringe tip-icon"></i>
+        <h4>Monitor Regularly</h4>
+        <p>Log readings consistently at the same time each day. Patterns help your doctor fine-tune treatment.</p>
+      </div>
+      <div class="tip-card">
+        <i class="fa-solid fa-circle-exclamation tip-icon"></i>
+        <h4>Know Warning Signs</h4>
+        <p>Shakiness, sweating = low sugar. Extreme thirst, blurry vision = high sugar. Act immediately.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>&copy; 2025 <strong style="color:white;">MyDigiDia Record</strong> — Empowering Diabetes Management &nbsp;|&nbsp; <a href="/help">Help</a> &nbsp;|&nbsp; <a href="/">Home</a></p>
+</footer>
+<button class="scroll-top" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})"><i class="fa fa-arrow-up"></i></button>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="modal-add-record" onclick="closeModalOutside(event,this)">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('modal-add-record')"><i class="fa fa-times"></i></button>
+    <div class="modal-icon"><i class="fa-solid fa-notes-medical"></i></div>
+    <h3>How to Add Records</h3>
+    <p>Follow these steps to log your daily blood glucose readings in MyDigiDia Record.</p>
+    <div class="modal-step"><div class="step-num">1</div><div class="step-txt">Log in to your account using your email and password.</div></div>
+    <div class="modal-step"><div class="step-num">2</div><div class="step-txt">Navigate to the <strong>Records</strong> page from the top navigation bar.</div></div>
+    <div class="modal-step"><div class="step-num">3</div><div class="step-txt">Click <strong>"Add Record"</strong> and enter your glucose level in mg/dL.</div></div>
+    <div class="modal-step"><div class="step-num">4</div><div class="step-txt">Select the reading type: Fasting, Post-meal, Bedtime, or Random.</div></div>
+    <div class="modal-step"><div class="step-num">5</div><div class="step-txt">Add optional notes (meal eaten, exercise) and click <strong>Save</strong>.</div></div>
+    <p style="background:#fde8eb;border-radius:10px;padding:12px;font-size:13px;color:#641220;margin-top:8px;"><i class="fa fa-lightbulb"></i> <strong>Tip:</strong> Record at consistent times each day for more accurate trend analysis.</p>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-csv" onclick="closeModalOutside(event,this)">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('modal-csv')"><i class="fa fa-times"></i></button>
+    <div class="modal-icon"><i class="fa-solid fa-file-csv"></i></div>
+    <h3>Import CSV Data</h3>
+    <p>Transfer your glucose history from mySugr or any CSV-compatible diabetes app into MyDigiDia.</p>
+    <div class="modal-step"><div class="step-num">1</div><div class="step-txt">Export data from mySugr: Settings → Export Data → CSV format.</div></div>
+    <div class="modal-step"><div class="step-num">2</div><div class="step-txt">In MyDigiDia, go to <strong>Records → Import CSV</strong> at the top of the page.</div></div>
+    <div class="modal-step"><div class="step-num">3</div><div class="step-txt">Select your exported CSV file from your device.</div></div>
+    <div class="modal-step"><div class="step-num">4</div><div class="step-txt">Review the column mapping — match date, time, and glucose columns correctly.</div></div>
+    <div class="modal-step"><div class="step-num">5</div><div class="step-txt">Click <strong>Import</strong>. Duplicates are automatically skipped.</div></div>
+    <p style="background:#fde8eb;border-radius:10px;padding:12px;font-size:13px;color:#641220;margin-top:8px;"><i class="fa fa-info-circle"></i> Supported: mySugr CSV and generic glucose CSV with date/time/value columns.</p>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-reports" onclick="closeModalOutside(event,this)">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('modal-reports')"><i class="fa fa-times"></i></button>
+    <div class="modal-icon"><i class="fa-solid fa-chart-line"></i></div>
+    <h3>Reports &amp; Analytics</h3>
+    <p>MyDigiDia provides powerful analytics to help you and your doctor understand your diabetes patterns.</p>
+    <ul>
+      <li><strong>Glucose Trend Chart:</strong> Daily glucose with low/normal/high color coding.</li>
+      <li><strong>Time in Range:</strong> % of readings within your target glucose range.</li>
+      <li><strong>HbA1c Estimate:</strong> 3-month average converted to HbA1c percentage.</li>
+      <li><strong>Average by Period:</strong> Morning, afternoon, evening, and bedtime breakdowns.</li>
+      <li><strong>Highest / Lowest:</strong> Identify extreme readings and when they occurred.</li>
+      <li><strong>Export PDF:</strong> Download a full report to share with your healthcare provider.</li>
+    </ul>
+    <p style="background:#fde8eb;border-radius:10px;padding:12px;font-size:13px;color:#641220;margin-top:14px;"><i class="fa fa-lightbulb"></i> Filter by date range in Reports for focused insights before doctor visits.</p>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-medication" onclick="closeModalOutside(event,this)">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('modal-medication')"><i class="fa fa-times"></i></button>
+    <div class="modal-icon"><i class="fa-solid fa-pills"></i></div>
+    <h3>Medication Reminder Guide</h3>
+    <p>Stay on top of your medication schedule with reminders configured in your Settings.</p>
+    <div class="modal-step"><div class="step-num">1</div><div class="step-txt">Go to <strong>Settings → Medication Reminders</strong> section.</div></div>
+    <div class="modal-step"><div class="step-num">2</div><div class="step-txt">Add your medication name, dosage, and schedule (daily, twice daily, etc.).</div></div>
+    <div class="modal-step"><div class="step-num">3</div><div class="step-txt">Enable browser notifications when prompted so alerts appear in the background.</div></div>
+    <div class="modal-step"><div class="step-num">4</div><div class="step-txt">You'll receive a notification at the set time each day reminding you to take medication.</div></div>
+    <p style="background:#fde8eb;border-radius:10px;padding:12px;font-size:13px;color:#641220;margin-top:8px;"><i class="fa fa-exclamation-triangle"></i> Always follow your doctor's prescription. Never adjust dosage without medical advice.</p>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-security" onclick="closeModalOutside(event,this)">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('modal-security')"><i class="fa fa-times"></i></button>
+    <div class="modal-icon"><i class="fa-solid fa-shield-halved"></i></div>
+    <h3>Account &amp; Security</h3>
+    <p>Your medical data is protected with industry-standard security practices.</p>
+    <ul>
+      <li><strong>Encrypted Passwords:</strong> Passwords are hashed — never stored in plain text.</li>
+      <li><strong>Session Security:</strong> Auto-logout after inactivity protects shared device access.</li>
+      <li><strong>OTP Reset:</strong> Password resets require a one-time code sent to your email.</li>
+      <li><strong>Private Data:</strong> Records accessible only through your authenticated account.</li>
+    </ul>
+    <p style="margin-top:14px;font-weight:600;color:#641220;">Security Tips:</p>
+    <ul>
+      <li>Use a strong, unique password with letters, numbers, and symbols.</li>
+      <li>Never share your login credentials with anyone.</li>
+      <li>Always log out after using a shared computer.</li>
+      <li>Update your password regularly in Settings → Change Password.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-diet" onclick="closeModalOutside(event,this)">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('modal-diet')"><i class="fa fa-times"></i></button>
+    <div class="modal-icon"><i class="fa-solid fa-utensils"></i></div>
+    <h3>Diet &amp; Nutrition Guide</h3>
+    <p>Food plays the most direct role in blood glucose management.</p>
+    <p style="font-weight:600;color:#22c55e;margin-bottom:6px;"><i class="fa fa-check-circle"></i> Foods That Help:</p>
+    <ul>
+      <li>Leafy greens (spinach, fenugreek, kale)</li>
+      <li>Whole grains (oats, brown rice, whole wheat)</li>
+      <li>Legumes (lentils, chickpeas, kidney beans)</li>
+      <li>Low-GI fruits (apples, berries, pears, guava)</li>
+      <li>Nuts and seeds (almonds, walnuts, flaxseeds)</li>
+    </ul>
+    <p style="font-weight:600;color:#dc3545;margin:12px 0 6px;"><i class="fa fa-times-circle"></i> Foods to Avoid:</p>
+    <ul>
+      <li>Sugary drinks (sodas, packaged juices, energy drinks)</li>
+      <li>White bread, white rice, refined flour products</li>
+      <li>Fried and ultra-processed snacks</li>
+      <li>Sweets, desserts, and candy</li>
+    </ul>
+    <p style="background:#fde8eb;border-radius:10px;padding:12px;font-size:13px;color:#641220;margin-top:14px;"><i class="fa fa-utensils"></i> Use MyDigiDia's <a href="/diet" style="color:#a71d31;font-weight:600;">Diet Tracker</a> to log meals and monitor their glucose impact.</p>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-emergency" onclick="closeModalOutside(event,this)">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('modal-emergency')"><i class="fa fa-times"></i></button>
+    <div class="modal-icon" style="background:linear-gradient(135deg,#ffe0e3,#ffd0d5);"><i class="fa-solid fa-triangle-exclamation" style="color:#dc3545;"></i></div>
+    <h3 style="color:#dc3545;">Emergency Diabetes Tips</h3>
+    <p style="font-weight:700;color:#dc3545;"><i class="fa fa-arrow-down"></i> Low Blood Sugar (Hypoglycemia) — Below 70 mg/dL</p>
+    <p><strong>Symptoms:</strong> Shakiness, sweating, confusion, rapid heartbeat, dizziness, pale skin.</p>
+    <p><strong>Action:</strong> Take 15–20g fast-acting carbs (4 glucose tablets, half cup juice, or 3 tsp sugar). Re-check after 15 minutes. Repeat if still low.</p>
+    <p style="font-weight:700;color:#f59e0b;margin-top:12px;"><i class="fa fa-arrow-up"></i> High Blood Sugar (Hyperglycemia) — Above 250 mg/dL</p>
+    <p><strong>Symptoms:</strong> Extreme thirst, frequent urination, blurry vision, fatigue, fruity breath.</p>
+    <p><strong>Action:</strong> Drink water, check for ketones (Type 1), contact your doctor. Do not exercise if above 300 mg/dL.</p>
+    <p style="background:#dc3545;border-radius:10px;padding:14px;font-size:13px;color:white;margin-top:14px;font-weight:600;"><i class="fa fa-phone"></i> For any severe emergency, call <strong>108</strong> (India) or your local emergency services immediately.</p>
+  </div>
+</div>
+
+<script>
+function toggleFaq(el){
+  var item=el.closest('.faq-item'),isOpen=item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(function(i){i.classList.remove('open');});
+  if(!isOpen)item.classList.add('open');
+}
+function openModal(id){document.getElementById(id).classList.add('active');document.body.style.overflow='hidden';}
+function closeModal(id){document.getElementById(id).classList.remove('active');document.body.style.overflow='';}
+function closeModalOutside(e,overlay){if(e.target===overlay){overlay.classList.remove('active');document.body.style.overflow='';}}
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){document.querySelectorAll('.modal-overlay.active').forEach(function(m){m.classList.remove('active');document.body.style.overflow='';});}});
+
+var topics=[
+  {text:'How to Add Records',icon:'fa-notes-medical',modal:'modal-add-record'},
+  {text:'Import CSV Data from mySugr',icon:'fa-file-csv',modal:'modal-csv'},
+  {text:'Reports & Analytics',icon:'fa-chart-line',modal:'modal-reports'},
+  {text:'Medication Reminder Guide',icon:'fa-pills',modal:'modal-medication'},
+  {text:'Account & Security',icon:'fa-shield-halved',modal:'modal-security'},
+  {text:'Diet & Nutrition Guide',icon:'fa-utensils',modal:'modal-diet'},
+  {text:'Emergency Diabetes Tips',icon:'fa-triangle-exclamation',modal:'modal-emergency'},
+  {text:'FAQ — Frequently Asked Questions',icon:'fa-circle-question',anchor:'#faq-section'},
+  {text:'Quick Diabetes Tips',icon:'fa-lightbulb',anchor:'#tips'},
+];
+var searchInput=document.getElementById('helpSearch');
+var searchResults=document.getElementById('searchResults');
+searchInput.addEventListener('input',function(){
+  var q=searchInput.value.trim().toLowerCase();
+  if(!q){searchResults.classList.remove('active');return;}
+  var matches=topics.filter(function(t){return t.text.toLowerCase().includes(q);}).slice(0,5);
+  if(!matches.length){searchResults.classList.remove('active');return;}
+  searchResults.innerHTML=matches.map(function(t){
+    return '<div class="search-result-item" onclick="handleSearch(\''+( t.modal||'')+'\',\''+( t.anchor||'')+'\')"><i class="fa-solid '+t.icon+'"></i> '+t.text+'</div>';
+  }).join('');
+  searchResults.classList.add('active');
+});
+function handleSearch(modal,anchor){
+  searchResults.classList.remove('active');searchInput.value='';
+  if(modal)openModal(modal);
+  else if(anchor)document.querySelector(anchor).scrollIntoView({behavior:'smooth'});
+}
+function doSearch(){
+  var q=searchInput.value.trim().toLowerCase();if(!q)return;
+  var match=topics.find(function(t){return t.text.toLowerCase().includes(q);});
+  if(match)handleSearch(match.modal||'',match.anchor||'');
+}
+searchInput.addEventListener('keydown',function(e){if(e.key==='Enter')doSearch();});
+document.addEventListener('click',function(e){if(!e.target.closest('.search-wrap-pos'))searchResults.classList.remove('active');});
+
+window.addEventListener('scroll',function(){
+  document.getElementById('scrollTopBtn').classList.toggle('visible',window.scrollY>400);
+});
+
+var observer=new IntersectionObserver(function(entries){
+  entries.forEach(function(entry,i){
+    if(entry.isIntersecting){setTimeout(function(){entry.target.classList.add('visible');},i*80);observer.unobserve(entry.target);}
+  });
+},{threshold:0.1,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(function(el){observer.observe(el);});
+
+</script>
+</body>
+</html>

@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up – MyDigiDia</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family:"Segoe UI",sans-serif;
+    }
+
+    body{
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      background:linear-gradient(135deg,#fdf7f7,#fbe4e6);
+      padding:20px 0;
+    }
+
+    .back-btn{
+      position:fixed;
+      top:20px;
+      left:20px;
+      background:white;
+      border:none;
+      padding:10px 14px;
+      border-radius:8px;
+      font-size:15px;
+      cursor:pointer;
+      box-shadow:0 2px 8px rgba(0,0,0,0.15);
+      color:#7b1e2b;
+      text-decoration:none;
+      font-weight:600;
+      transition:0.3s;
+    }
+
+    .back-btn:hover{
+      background:#fbe4e6;
+    }
+
+    .card{
+      width:100%;
+      max-width:420px;
+      padding:35px;
+      background:white;
+      border-radius:18px;
+      box-shadow:0 20px 40px rgba(123,30,43,0.15);
+      border-top:6px solid #b23a48;
+    }
+
+    h2{
+      text-align:center;
+      margin-bottom:20px;
+      color:#7b1e2b;
+      font-size:30px;
+    }
+
+    .flash{
+      padding:10px 14px;
+      border-radius:8px;
+      margin-bottom:14px;
+      font-size:14px;
+      font-weight:500;
+    }
+
+    .flash.error{
+      background:#fee2e2;
+      color:#b91c1c;
+    }
+
+    .flash.success{
+      background:#dcfce7;
+      color:#15803d;
+    }
+
+    label{
+      font-weight:600;
+      font-size:14px;
+      color:#7b1e2b;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="date"]{
+      width:100%;
+      padding:11px 12px;
+      margin:6px 0 14px;
+      border:1px solid #ddd;
+      border-radius:8px;
+      font-size:14px;
+      outline:none;
+      transition:0.3s;
+      background:#fffafa;
+    }
+
+    input:focus{
+      border-color:#b23a48;
+      box-shadow:0 0 0 3px rgba(178,58,72,0.15);
+    }
+
+    .password-box{
+      position:relative;
+    }
+
+    .password-box input{
+      padding-right:38px;
+    }
+
+    .password-box i{
+      position:absolute;
+      right:12px;
+      top:50%;
+      transform:translateY(-50%);
+      cursor:pointer;
+      color:#b23a48;
+    }
+
+    .match-hint{
+      font-size:12px;
+      margin-top:-10px;
+      margin-bottom:10px;
+      display:none;
+    }
+
+    .match-hint.bad{
+      color:#b91c1c;
+      display:block;
+    }
+
+    .match-hint.good{
+      color:#15803d;
+      display:block;
+    }
+
+    .submit-btn{
+      width:100%;
+      padding:13px;
+      border:none;
+      border-radius:10px;
+      font-size:16px;
+      font-weight:bold;
+      cursor:pointer;
+      margin-top:6px;
+      background:linear-gradient(90deg,#7b1e2b,#b23a48);
+      color:white;
+      transition:0.3s;
+    }
+
+    .submit-btn:hover{
+      background:linear-gradient(90deg,#641622,#962f3b);
+      transform:translateY(-2px);
+    }
+
+    a{
+      color:#b23a48;
+      text-decoration:none;
+      font-weight:600;
+    }
+
+    a:hover{
+      text-decoration:underline;
+    }
+
+    .text-link{
+      text-align:center;
+      margin-top:14px;
+      font-size:14px;
+      color:#555;
+    }
+  </style>
+</head>
+
+<body>
+
+<a href="/" class="back-btn">
+  <i class="fa fa-arrow-left"></i> Back
+</a>
+
+<div class="card">
+
+  <h2>Create Account</h2>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+      <div class="flash {{ category }}">{{ message }}</div>
+    {% endfor %}
+  {% endwith %}
+
+  <form method="POST" action="/signup" id="signupForm" autocomplete="off">
+    <input type="text" name="fake_username" autocomplete="username" tabindex="-1" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;">
+    <input type="password" name="fake_password" autocomplete="current-password" tabindex="-1" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;">
+
+    <label>Full Name</label>
+    <input type="text" name="name" placeholder="Enter your name" autocomplete="off" autocapitalize="words" spellcheck="false" data-lpignore="true" data-form-type="other" value="" readonly required>
+
+    <label>Phone Number</label>
+    <input type="text"
+           name="phone"
+           placeholder="Enter phone number"
+           autocomplete="off"
+           inputmode="tel"
+           pattern="(\+91[\s-]?)?[6-9][0-9]{9}"
+           title="Enter a valid Indian mobile number"
+           data-lpignore="true"
+           data-form-type="other"
+           value=""
+           readonly
+           required>
+
+    <label>Email</label>
+    <input type="email" name="email" placeholder="Enter your email" autocomplete="off" autocapitalize="none" spellcheck="false" data-lpignore="true" data-form-type="other" value="" readonly required>
+
+    <label>Date of Birth</label>
+    <input type="date" name="dob" autocomplete="off" data-lpignore="true" data-form-type="other" value="" readonly>
+
+    <label>Password</label>
+    <div class="password-box">
+      <input type="password"
+             id="signupPassword"
+             name="password"
+             placeholder="Min. 6 characters"
+             autocomplete="new-password"
+             minlength="6"
+             value=""
+             readonly
+             required>
+
+      <i class="fa fa-eye"
+         onclick="togglePassword('signupPassword', this)"></i>
+    </div>
+
+    <label>Confirm Password</label>
+
+    <div class="password-box">
+      <input type="password"
+             id="confirmPassword"
+             name="confirm_password"
+             placeholder="Re-enter password"
+             autocomplete="new-password"
+             value=""
+             readonly
+             required
+             oninput="checkMatch()">
+
+      <i class="fa fa-eye"
+         onclick="togglePassword('confirmPassword', this)"></i>
+    </div>
+
+    <p class="match-hint" id="matchHint"></p>
+
+    <button type="submit" class="submit-btn" id="submitBtn">
+      Create Account
+    </button>
+
+  </form>
+
+  <div class="text-link">
+    Already have an account?
+    <a href="/login">Login</a>
+  </div>
+
+</div>
+
+<script>
+
+function clearSignupForm(){
+  const form = document.getElementById("signupForm");
+  if(!form){
+    return;
+  }
+
+  form.reset();
+  form.querySelectorAll("input:not([name^='fake_'])").forEach(function(input){
+    input.value = "";
+  });
+
+  const hint = document.getElementById("matchHint");
+  const btn = document.getElementById("submitBtn");
+  if(hint){
+    hint.textContent = "";
+    hint.className = "match-hint";
+  }
+  if(btn){
+    btn.disabled = false;
+  }
+}
+
+window.addEventListener("pageshow", clearSignupForm);
+window.addEventListener("load", clearSignupForm);
+
+document.querySelectorAll("#signupForm input[readonly]").forEach(function(input){
+  input.addEventListener("focus", function(){
+    input.removeAttribute("readonly");
+  });
+
+  input.addEventListener("touchstart", function(){
+    input.removeAttribute("readonly");
+  }, { passive: true });
+});
+
+function togglePassword(id, icon){
+
+  const input = document.getElementById(id);
+
+  if(input.type === "password"){
+    input.type = "text";
+    icon.classList.replace("fa-eye","fa-eye-slash");
+  }
+  else{
+    input.type = "password";
+    icon.classList.replace("fa-eye-slash","fa-eye");
+  }
+}
+
+function checkMatch(){
+
+  const pw = document.getElementById("signupPassword").value;
+  const confirm = document.getElementById("confirmPassword").value;
+
+  const hint = document.getElementById("matchHint");
+  const btn = document.getElementById("submitBtn");
+
+  if(confirm.length === 0){
+    hint.className = "match-hint";
+    btn.disabled = false;
+    return;
+  }
+
+  if(pw === confirm){
+
+    hint.textContent = "✓ Passwords match";
+    hint.className = "match-hint good";
+    btn.disabled = false;
+
+  }else{
+
+    hint.textContent = "✗ Passwords do not match";
+    hint.className = "match-hint bad";
+    btn.disabled = true;
+  }
+}
+
+</script>
+
+</body>
+</html>

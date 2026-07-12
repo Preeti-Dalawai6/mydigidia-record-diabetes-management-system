@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Records — MyDigiDia</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+/* ── Reset & Base ───────────────────────────────────────────── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --crimson:      #a71d31;
+  --crimson-dark: #7b1e2b;
+  --crimson-deep: #5a1320;
+  --crimson-soft: #c94060;
+  --crimson-bg:   #fdf7f7;
+  --crimson-lite: #f5e4e7;
+  --crimson-pale: #fceef0;
+  --border-clr:   #e8cdd1;
+  --text-main:    #2d1a1d;
+  --text-sub:     #6b4a50;
+  --text-muted:   #a08088;
+  --white:        #ffffff;
+  --shadow-sm:    0 2px 8px rgba(122,30,43,0.08);
+  --shadow-md:    0 4px 20px rgba(122,30,43,0.12);
+  --shadow-lg:    0 8px 40px rgba(122,30,43,0.18);
+  --radius-sm:    8px;
+  --radius-md:    14px;
+  --radius-lg:    20px;
+  --transition:   0.22s ease;
+}
+
+html { scroll-behavior: smooth; }
+body { background: var(--crimson-bg); font-family: 'Segoe UI', system-ui, sans-serif; color: var(--text-main); min-height: 100vh; }
+
+/* ── Nav ────────────────────────────────────────────────────── */
+nav {
+  width: 100%;
+  background: linear-gradient(90deg, #7b1e2b, #b23a48);
+  padding: 18px 50px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #fff;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  position: sticky;
+  top: 0;
+  z-index: 200;
+}
+nav .logo {
+  font-size: 24px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+}
+nav .logo i { margin-right: 8px; }
+nav ul { display: flex; list-style: none; gap: 24px; }
+nav ul li a {
+  text-decoration: none;
+  color: #fff;
+  font-size: 15px;
+  opacity: 0.9;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+nav ul li a:hover {
+  opacity: 1;
+  color: #ffe5e5;
+}
+nav ul li a.active {
+  background: rgba(255,255,255,0.18);
+  padding: 5px 12px;
+  border-radius: 20px;
+  opacity: 1;
+}
+
+/* ── Page Layout ────────────────────────────────────────────── */
+.page-wrapper { width: 93%; max-width: 1140px; margin: 0 auto; padding: 32px 0 100px; }
+
+/* ── Page Header ────────────────────────────────────────────── */
+.page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; flex-wrap: wrap; gap: 14px; }
+.page-header-left h1 { font-size: 27px; font-weight: 800; color: var(--crimson-dark); display: flex; align-items: center; gap: 11px; }
+.page-header-left p { color: var(--text-muted); font-size: 14px; margin-top: 4px; margin-left: 38px; }
+
+.btn-add-reading {
+  background: linear-gradient(135deg, var(--crimson), var(--crimson-dark));
+  color: white; border: none; padding: 13px 26px; border-radius: var(--radius-md);
+  font-size: 15px; font-weight: 700; cursor: pointer;
+  display: flex; align-items: center; gap: 9px;
+  box-shadow: 0 4px 16px rgba(167,29,49,0.38);
+  transition: var(--transition);
+}
+.btn-add-reading:hover { transform: translateY(-2px); box-shadow: 0 7px 24px rgba(167,29,49,0.48); }
+
+/* ── Summary Stats ──────────────────────────────────────────── */
+.stats-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-bottom: 24px; }
+.stat-card {
+  background: var(--white); border-radius: var(--radius-md);
+  padding: 20px 16px; text-align: center;
+  box-shadow: var(--shadow-sm); border-top: 3px solid var(--crimson);
+  transition: var(--transition); position: relative; overflow: hidden;
+}
+.stat-card::after {
+  content: ''; position: absolute; bottom: -20px; right: -20px;
+  width: 70px; height: 70px; background: var(--crimson-pale); border-radius: 50%;
+  transition: var(--transition);
+}
+.stat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+.stat-card:hover::after { width: 90px; height: 90px; }
+.stat-card .s-icon { font-size: 22px; color: var(--crimson); margin-bottom: 8px; position: relative; z-index: 1; }
+.stat-card .s-val { font-size: 30px; font-weight: 800; color: var(--crimson-dark); line-height: 1; margin-bottom: 5px; position: relative; z-index: 1; }
+.stat-card .s-lbl { font-size: 12px; color: var(--text-muted); font-weight: 500; position: relative; z-index: 1; }
+.stat-card.stat-high .s-val { color: #dc2626; }
+.stat-card.stat-high { border-top-color: #dc2626; }
+.stat-card.stat-low .s-val { color: #1d4ed8; }
+.stat-card.stat-low { border-top-color: #1d4ed8; }
+.stat-card.stat-normal .s-val { color: #16a34a; }
+.stat-card.stat-normal { border-top-color: #16a34a; }
+
+/* ── Recent Strip ───────────────────────────────────────────── */
+.recent-strip { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 24px; }
+.recent-pill {
+  background: var(--white); border-radius: var(--radius-md);
+  padding: 14px 18px; box-shadow: var(--shadow-sm);
+  border-left: 4px solid var(--crimson); min-width: 155px; flex: 1;
+  transition: var(--transition);
+}
+.recent-pill:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.recent-pill .rp-val { font-size: 22px; font-weight: 800; color: var(--crimson); }
+.recent-pill .rp-time { font-size: 11.5px; color: var(--text-muted); margin-top: 3px; }
+.recent-pill .rp-meal { font-size: 11.5px; color: var(--text-sub); margin-top: 3px; font-style: italic; }
+
+/* ── Filter Bar ─────────────────────────────────────────────── */
+.filter-bar {
+  background: var(--white); padding: 16px 20px; border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm); display: flex; gap: 12px; flex-wrap: wrap;
+  align-items: center; margin-bottom: 22px; border: 1px solid var(--border-clr);
+}
+.filter-bar .fi { color: var(--crimson); font-size: 15px; }
+.filter-bar input, .filter-bar select {
+  padding: 9px 14px; border: 1.5px solid var(--border-clr);
+  border-radius: var(--radius-sm); outline: none; font-size: 13.5px;
+  flex: 1; min-width: 130px; color: var(--text-main); background: var(--crimson-bg);
+  transition: border-color var(--transition); font-family: inherit;
+}
+.filter-bar input:focus, .filter-bar select:focus { border-color: var(--crimson); }
+.btn-clear {
+  background: var(--crimson-lite); color: var(--crimson-dark); border: none;
+  padding: 9px 16px; border-radius: var(--radius-sm); cursor: pointer;
+  font-weight: 600; font-size: 13px; transition: var(--transition);
+  display: flex; align-items: center; gap: 6px;
+}
+.btn-clear:hover { background: #e2bdc3; }
+
+/* ── Cards ──────────────────────────────────────────────────── */
+.card { background: var(--white); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); margin-bottom: 22px; border: 1px solid var(--border-clr); overflow: hidden; }
+.card-header { padding: 18px 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-clr); }
+.card-header h2 { font-size: 16px; font-weight: 700; color: var(--crimson-dark); display: flex; align-items: center; gap: 8px; }
+.card-body { padding: 22px 24px; }
+
+#glucoseChart { max-height: 200px; }
+
+/* ── Table ──────────────────────────────────────────────────── */
+.table-scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+thead tr { background: linear-gradient(90deg, var(--crimson-dark), var(--crimson)); }
+thead th { padding: 13px 16px; text-align: left; color: white; font-weight: 600; font-size: 12.5px; letter-spacing: 0.4px; white-space: nowrap; }
+tbody tr { border-bottom: 1px solid #f5e4e7; transition: background var(--transition); }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: var(--crimson-pale); }
+tbody td { padding: 13px 16px; color: var(--text-main); vertical-align: middle; }
+.td-glucose { font-size: 16px; font-weight: 800; color: var(--crimson-dark); }
+.td-unit { font-size: 11px; color: var(--text-muted); }
+
+/* ── Badges ─────────────────────────────────────────────────── */
+.badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 12px; border-radius: 20px; font-size: 11.5px; font-weight: 700; letter-spacing: 0.4px; white-space: nowrap; }
+.badge-normal { background: #dcfce7; color: #15803d; }
+.badge-low    { background: #dbeafe; color: #1d4ed8; }
+.badge-high   { background: #fee2e2; color: #dc2626; }
+
+/* ── Action Buttons ─────────────────────────────────────────── */
+.btn-edit {
+  background: #fef9c3; color: #854d0e; border: 1px solid #fde68a;
+  padding: 5px 12px; border-radius: var(--radius-sm);
+  cursor: pointer; font-size: 12.5px; font-weight: 600; transition: var(--transition);
+  margin-right: 5px; display: inline-flex; align-items: center; gap: 4px;
+}
+.btn-edit:hover { background: #fde68a; }
+.btn-delete {
+  background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5;
+  padding: 5px 12px; border-radius: var(--radius-sm);
+  cursor: pointer; font-size: 12.5px; font-weight: 600; transition: var(--transition);
+  display: inline-flex; align-items: center; gap: 4px;
+}
+.btn-delete:hover { background: #fca5a5; }
+
+/* ── Empty State ────────────────────────────────────────────── */
+.empty-state { text-align: center; padding: 64px 20px; }
+.empty-state-icon { width: 80px; height: 80px; background: var(--crimson-pale); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 18px; }
+.empty-state-icon i { font-size: 34px; color: var(--crimson); }
+.empty-state h3 { font-size: 18px; font-weight: 700; color: var(--crimson-dark); margin-bottom: 8px; }
+.empty-state p { color: var(--text-muted); font-size: 14px; max-width: 300px; margin: 0 auto 20px; }
+.btn-empty-cta {
+  background: linear-gradient(135deg, var(--crimson), var(--crimson-dark));
+  color: white; border: none; padding: 11px 24px; border-radius: var(--radius-md);
+  font-size: 14px; font-weight: 700; cursor: pointer; transition: var(--transition);
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-empty-cta:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+
+/* ── Skeleton ───────────────────────────────────────────────── */
+.skeleton { background: linear-gradient(90deg, #f0e8e9 25%, #f7efef 50%, #f0e8e9 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 6px; }
+@keyframes shimmer { to { background-position: -200% 0; } }
+
+/* ── Modal ──────────────────────────────────────────────────── */
+.modal-backdrop {
+  display: none; position: fixed; inset: 0;
+  background: rgba(45,26,29,0.5); backdrop-filter: blur(4px);
+  z-index: 1000; align-items: center; justify-content: center;
+}
+.modal-backdrop.open { display: flex; }
+.modal {
+  background: var(--white); border-radius: var(--radius-lg);
+  width: 92%; max-width: 540px; max-height: 94vh; overflow-y: auto;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.28);
+  animation: slideUp 0.28s cubic-bezier(0.16,1,0.3,1);
+}
+@keyframes slideUp { from { transform: translateY(28px) scale(0.97); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
+
+.modal-header {
+  background: linear-gradient(130deg, var(--crimson-dark), var(--crimson));
+  color: white; padding: 20px 24px;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.modal-header h2 { font-size: 18px; display: flex; align-items: center; gap: 9px; }
+.modal-close {
+  background: rgba(255,255,255,0.15); border: none; color: white;
+  width: 30px; height: 30px; border-radius: 50%; cursor: pointer;
+  font-size: 18px; display: flex; align-items: center; justify-content: center;
+  transition: background var(--transition);
+}
+.modal-close:hover { background: rgba(255,255,255,0.28); }
+
+.modal-body { padding: 24px; }
+
+.meal-label { font-weight: 600; color: var(--text-sub); font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.meal-chips { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 18px; }
+.meal-chip {
+  padding: 6px 14px; border: 1.5px solid var(--border-clr);
+  color: var(--text-sub); background: var(--crimson-bg);
+  border-radius: 20px; font-size: 12px; font-weight: 600;
+  cursor: pointer; transition: var(--transition); user-select: none;
+}
+.meal-chip:hover { border-color: var(--crimson); color: var(--crimson); }
+.meal-chip.active { background: var(--crimson); color: white; border-color: var(--crimson); }
+
+.form-row { margin-bottom: 16px; }
+.form-row label { display: flex; align-items: center; gap: 6px; font-weight: 600; color: var(--text-sub); font-size: 13px; margin-bottom: 7px; }
+.form-row label i { color: var(--crimson); font-size: 13px; }
+.form-row input, .form-row textarea, .form-row select {
+  width: 100%; padding: 11px 14px; border: 1.5px solid var(--border-clr);
+  border-radius: var(--radius-sm); outline: none; font-size: 14px; font-family: inherit;
+  background: var(--crimson-bg); color: var(--text-main);
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.form-row input:focus, .form-row textarea:focus {
+  border-color: var(--crimson); box-shadow: 0 0 0 3px rgba(167,29,49,0.09);
+  background: var(--white);
+}
+.form-row textarea { resize: vertical; min-height: 72px; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+.glucose-indicator {
+  display: none; padding: 11px 16px; border-radius: var(--radius-sm);
+  font-weight: 700; font-size: 13.5px; align-items: center; gap: 9px;
+  margin-bottom: 16px; animation: fadeIn 0.2s ease;
+}
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+.glucose-indicator.show { display: flex; }
+.gi-normal { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+.gi-low    { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+.gi-high   { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
+
+.validation-msg {
+  display: none; padding: 10px 14px;
+  background: #fee2e2; color: #dc2626;
+  border: 1px solid #fca5a5; border-radius: var(--radius-sm);
+  font-size: 13px; font-weight: 600; margin-bottom: 14px;
+  align-items: center; gap: 8px;
+}
+.validation-msg.show { display: flex; }
+
+.modal-footer { display: flex; gap: 12px; padding: 0 24px 24px; }
+.btn-save {
+  flex: 1; background: linear-gradient(135deg, var(--crimson), var(--crimson-dark));
+  color: white; border: none; padding: 13px; border-radius: var(--radius-md);
+  font-size: 15px; font-weight: 700; cursor: pointer; transition: var(--transition);
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn-save:hover:not(:disabled) { opacity: 0.92; transform: translateY(-1px); }
+.btn-save:disabled { opacity: 0.65; cursor: not-allowed; transform: none; }
+.btn-cancel {
+  flex: 1; background: var(--crimson-lite); color: var(--crimson-dark);
+  border: none; padding: 13px; border-radius: var(--radius-md);
+  font-size: 15px; font-weight: 600; cursor: pointer; transition: var(--transition);
+}
+.btn-cancel:hover { background: #e2bdc3; }
+.spinner { display: none; width: 18px; height: 18px; border: 3px solid rgba(255,255,255,0.35); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Toast ──────────────────────────────────────────────────── */
+#toast {
+  position: fixed; bottom: 90px; right: 24px;
+  padding: 14px 20px; border-radius: var(--radius-md);
+  font-size: 14px; font-weight: 600; z-index: 9999;
+  display: none; align-items: center; gap: 10px;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.22); min-width: 220px;
+}
+#toast.show { display: flex; }
+#toast.success { background: #16a34a; color: white; }
+#toast.error   { background: #dc2626; color: white; }
+#toast.info    { background: var(--crimson-dark); color: white; }
+
+/* ── Delete Confirm ─────────────────────────────────────────── */
+.confirm-backdrop {
+  display: none; position: fixed; inset: 0;
+  background: rgba(45,26,29,0.55); backdrop-filter: blur(4px);
+  z-index: 2000; align-items: center; justify-content: center;
+}
+.confirm-backdrop.open { display: flex; }
+.confirm-box {
+  background: white; border-radius: var(--radius-lg);
+  padding: 30px 28px; width: 90%; max-width: 380px;
+  text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+  animation: slideUp 0.25s cubic-bezier(0.16,1,0.3,1);
+}
+.confirm-box .ci { font-size: 44px; color: #dc2626; margin-bottom: 14px; }
+.confirm-box h3 { font-size: 17px; color: var(--text-main); margin-bottom: 8px; }
+.confirm-box p { color: var(--text-muted); font-size: 13.5px; margin-bottom: 22px; }
+.confirm-btns { display: flex; gap: 12px; }
+.btn-confirm-delete { flex: 1; background: #dc2626; color: white; border: none; padding: 11px; border-radius: var(--radius-md); font-size: 14px; font-weight: 700; cursor: pointer; transition: var(--transition); }
+.btn-confirm-delete:hover { background: #b91c1c; }
+.btn-confirm-cancel { flex: 1; background: var(--crimson-lite); color: var(--crimson-dark); border: none; padding: 11px; border-radius: var(--radius-md); font-size: 14px; font-weight: 600; cursor: pointer; transition: var(--transition); }
+.btn-confirm-cancel:hover { background: #e2bdc3; }
+
+/* ── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 900px) { .stats-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 640px) {
+  nav { padding: 13px 18px; }
+  nav ul { flex-wrap: wrap; gap: 10px; }
+  nav ul li a { font-size: 0; }
+  nav ul li a i { font-size: 15px; }
+  .page-wrapper { padding: 22px 0 90px; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .form-grid { grid-template-columns: 1fr; }
+  .page-header h1 { font-size: 22px; }
+  .card-body { padding: 16px; }
+  thead th:nth-child(7), tbody td:nth-child(7) { display: none; }
+}
+@media (max-width: 420px) {
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  thead th:nth-child(6), tbody td:nth-child(6) { display: none; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo"><i class="fa-solid fa-heart-pulse"></i> MyDigiDia Record</div>
+  <ul>
+    <li><a href="/"><i class="fa fa-home"></i> Home</a></li>
+    <li><a href="/record" class="active"><i class="fa fa-folder"></i> Records</a></li>
+    <li><a href="/reports_page"><i class="fa fa-chart-line"></i> Reports</a></li>
+    <li><a href="/diet"><i class="fa fa-utensils"></i> Diet</a></li>
+    <li><a href="/settings"><i class="fa fa-gear"></i> Settings</a></li>
+    <li><a href="/profile"><i class="fa fa-circle-user"></i> Profile</a></li>
+    <li><a href="/help"><i class="fa fa-circle-question"></i> Help</a></li>
+    <li><a href="/logout"><i class="fa fa-sign-out-alt"></i> Logout</a></li>
+  </ul>
+</nav>
+
+<div class="page-wrapper">
+
+  <div class="page-header">
+    <div class="page-header-left">
+      <h1><i class="fa fa-folder-open" style="color:var(--crimson)"></i> Glucose Records</h1>
+      <p>Track, manage and analyse your blood glucose readings</p>
+    </div>
+    <button class="btn-add-reading" onclick="openModal()">
+      <i class="fa fa-plus"></i> Manual Entry
+    </button>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="s-icon"><i class="fa fa-list-ol"></i></div>
+      <div class="s-val" id="sTotalReadings">—</div>
+      <div class="s-lbl">Total Readings</div>
+    </div>
+    <div class="stat-card">
+      <div class="s-icon"><i class="fa fa-calculator"></i></div>
+      <div class="s-val" id="sAvgGlucose">—</div>
+      <div class="s-lbl">Average (mg/dL)</div>
+    </div>
+    <div class="stat-card stat-high">
+      <div class="s-icon"><i class="fa fa-arrow-up"></i></div>
+      <div class="s-val" id="sHighCount">—</div>
+      <div class="s-lbl">High Readings</div>
+    </div>
+    <div class="stat-card stat-low">
+      <div class="s-icon"><i class="fa fa-arrow-down"></i></div>
+      <div class="s-val" id="sLowCount">—</div>
+      <div class="s-lbl">Low Readings</div>
+    </div>
+    <div class="stat-card stat-normal">
+      <div class="s-icon"><i class="fa fa-check-circle"></i></div>
+      <div class="s-val" id="sNormalCount">—</div>
+      <div class="s-lbl">Normal Range</div>
+    </div>
+  </div>
+
+  <div id="recentStrip" class="recent-strip"></div>
+
+  <div class="filter-bar">
+    <i class="fa fa-search fi"></i>
+    <input type="text" id="searchInput" placeholder="Search notes, meal timing…" oninput="filterTable()">
+    <select id="filterStatus" onchange="filterTable()">
+      <option value="">All Status</option>
+      <option value="normal">Normal</option>
+      <option value="high">High</option>
+      <option value="low">Low</option>
+    </select>
+    <input type="date" id="filterDate" onchange="filterTable()">
+    <button class="btn-clear" onclick="clearFilters()"><i class="fa fa-times"></i> Clear</button>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2><i class="fa fa-chart-line"></i> Glucose Trend (Last 30 Readings)</h2>
+    </div>
+    <div class="card-body">
+      <canvas id="glucoseChart" height="90"></canvas>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2><i class="fa fa-table"></i> Reading History</h2>
+      <span class="table-count" id="tableCount"></span>
+    </div>
+    <div class="card-body" style="padding:0">
+      <div class="table-scroll">
+        <table id="readingsTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Glucose</th>
+              <th>Status</th>
+              <th>Date</th>
+              <th>Time</th>
+              <th>Meal Timing</th>
+              <th>Notes</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <tr><td colspan="8"><div class="skeleton" style="height:36px;margin:8px 16px"></div></td></tr>
+            <tr><td colspan="8"><div class="skeleton" style="height:36px;margin:8px 16px;width:78%"></div></td></tr>
+            <tr><td colspan="8"><div class="skeleton" style="height:36px;margin:8px 16px;width:60%"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div id="emptyState" class="empty-state" style="display:none">
+        <div class="empty-state-icon"><i class="fa fa-droplet"></i></div>
+        <h3>No Readings Yet</h3>
+        <p>Start tracking your blood glucose by adding your first manual entry.</p>
+        <button class="btn-empty-cta" onclick="openModal()"><i class="fa fa-plus"></i> Add First Reading</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── Add / Edit Modal ────────────────────────────────────── -->
+<div class="modal-backdrop" id="readingModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2><i class="fa fa-syringe"></i> <span id="modalTitle">Manual Entry</span></h2>
+      <button class="modal-close" onclick="closeModal()">&#215;</button>
+    </div>
+    <div class="modal-body">
+      <div class="meal-label"><i class="fa fa-utensils" style="color:var(--crimson)"></i> Meal Timing (optional)</div>
+      <div class="meal-chips">
+        <span class="meal-chip" onclick="pickMeal(this,'Before Breakfast')">Before Breakfast</span>
+        <span class="meal-chip" onclick="pickMeal(this,'After Breakfast')">After Breakfast</span>
+        <span class="meal-chip" onclick="pickMeal(this,'Before Lunch')">Before Lunch</span>
+        <span class="meal-chip" onclick="pickMeal(this,'After Lunch')">After Lunch</span>
+        <span class="meal-chip" onclick="pickMeal(this,'Before Dinner')">Before Dinner</span>
+        <span class="meal-chip" onclick="pickMeal(this,'After Dinner')">After Dinner</span>
+        <span class="meal-chip" onclick="pickMeal(this,'Bedtime')">Bedtime</span>
+        <span class="meal-chip" onclick="pickMeal(this,'Fasting')">Fasting</span>
+      </div>
+      <input type="hidden" id="mealTiming">
+
+      <div class="form-row">
+        <label><i class="fa fa-droplet"></i> Glucose Level (mg/dL) <span style="color:#dc2626">*</span></label>
+        <input type="number" id="glucoseInput" placeholder="e.g. 110" min="20" max="600" step="0.1" oninput="onGlucoseInput()" autocomplete="off">
+      </div>
+
+      <div class="glucose-indicator" id="glucoseIndicator">
+        <i class="fa fa-circle-info"></i>
+        <span id="glucoseIndicatorText"></span>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-row">
+          <label><i class="fa fa-calendar"></i> Date <span style="color:#dc2626">*</span></label>
+          <input type="date" id="readingDate">
+        </div>
+        <div class="form-row">
+          <label><i class="fa fa-clock"></i> Time <span style="color:#dc2626">*</span></label>
+          <input type="time" id="readingTime">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label><i class="fa fa-note-sticky"></i> Notes / Remarks</label>
+        <textarea id="readingNotes" placeholder="Any notes about this reading (optional)…"></textarea>
+      </div>
+
+      <div class="validation-msg" id="validationMsg">
+        <i class="fa fa-triangle-exclamation"></i>
+        <span id="validationText"></span>
+      </div>
+    </div>
+
+    <input type="hidden" id="editId" value="">
+    <div class="modal-footer">
+      <button class="btn-save" id="btnSave" onclick="saveReading()">
+        <div class="spinner" id="saveSpinner"></div>
+        <i class="fa fa-floppy-disk" id="saveIcon"></i>
+        <span id="saveBtnText">Save Reading</span>
+      </button>
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Delete Confirm ──────────────────────────────────────── -->
+<div class="confirm-backdrop" id="confirmBackdrop">
+  <div class="confirm-box">
+    <div class="ci"><i class="fa fa-trash-can"></i></div>
+    <h3>Delete this reading?</h3>
+    <p>This action cannot be undone. The record will be permanently removed.</p>
+    <div class="confirm-btns">
+      <button class="btn-confirm-delete" id="btnConfirmDelete">Yes, Delete</button>
+      <button class="btn-confirm-cancel" onclick="closeConfirm()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"><i class="fa fa-check-circle" id="toastIcon"></i> <span id="toastMsg"></span></div>
+
+<!-- ═══════════════ JAVASCRIPT ════════════════════════════════ -->
+<script>
+/* ── State ──────────────────────────────────────────────────── */
+let allReadings = [], glucoseChart, pendingDeleteId = null;
+
+/* ── Utilities ──────────────────────────────────────────────── */
+const fmtDate = dt => new Date(dt).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+const fmtTime = dt => new Date(dt).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+const glucoseStatus = v => v < 70 ? 'low' : v <= 140 ? 'normal' : 'high';
+function badgeHtml(level, status) {
+  const s = status || glucoseStatus(parseFloat(level));
+  const m = { normal:['badge-normal','✓ Normal'], high:['badge-high','↑ High'], low:['badge-low','↓ Low'] };
+  const [cls, txt] = m[s] || m.normal;
+  return `<span class="badge ${cls}">${txt}</span>`;
+}
+
+/* ── Toast ──────────────────────────────────────────────────── */
+let _tt;
+function showToast(msg, type='success') {
+  const el = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  document.getElementById('toastIcon').className = type==='error' ? 'fa fa-times-circle' : 'fa fa-check-circle';
+  el.className = `show ${type}`;
+  clearTimeout(_tt); _tt = setTimeout(()=>{ el.className=''; }, 3600);
+}
+
+/* ── Validation ─────────────────────────────────────────────── */
+let _vt;
+function showValidation(msg) {
+  const el = document.getElementById('validationMsg');
+  document.getElementById('validationText').textContent = msg;
+  el.classList.add('show');
+  clearTimeout(_vt); _vt = setTimeout(()=>el.classList.remove('show'), 4500);
+}
+const hideValidation = () => document.getElementById('validationMsg').classList.remove('show');
+
+/* ── Glucose Live Indicator ─────────────────────────────────── */
+function onGlucoseInput() {
+  const val = parseFloat(document.getElementById('glucoseInput').value);
+  const ind = document.getElementById('glucoseIndicator');
+  const txt = document.getElementById('glucoseIndicatorText');
+  ind.className = 'glucose-indicator';
+  if (isNaN(val) || val <= 0) return;
+  ind.classList.add('show');
+  if (val < 70)       { ind.classList.add('gi-low');    txt.textContent = `Low Blood Sugar (Hypoglycemia) — ${val} mg/dL`; }
+  else if (val <= 140){ ind.classList.add('gi-normal');  txt.textContent = `Normal Range (70–140 mg/dL) — ${val} mg/dL`; }
+  else                { ind.classList.add('gi-high');   txt.textContent = `High Blood Sugar (Hyperglycemia) — ${val} mg/dL`; }
+}
+
+/* ── Meal Chips ─────────────────────────────────────────────── */
+function pickMeal(el, val) {
+  document.querySelectorAll('.meal-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('mealTiming').value = val;
+}
+function clearMealChips() {
+  document.querySelectorAll('.meal-chip').forEach(c => c.classList.remove('active'));
+  document.getElementById('mealTiming').value = '';
+}
+
+/* ── Set Now ────────────────────────────────────────────────── */
+function setNow() {
+  const n = new Date();
+  document.getElementById('readingDate').value = n.toISOString().split('T')[0];
+  document.getElementById('readingTime').value = n.toTimeString().slice(0,5);
+}
+
+/* ── Open Modal ─────────────────────────────────────────────── */
+function openModal(editData=null) {
+  hideValidation();
+  document.getElementById('editId').value = '';
+  document.getElementById('glucoseInput').value = '';
+  document.getElementById('readingNotes').value = '';
+  document.getElementById('glucoseIndicator').className = 'glucose-indicator';
+  clearMealChips();
+  setNow();
+
+  if (editData) {
+    document.getElementById('modalTitle').textContent = 'Edit Reading';
+    document.getElementById('saveBtnText').textContent = 'Update Reading';
+    document.getElementById('editId').value = editData.id;
+    document.getElementById('glucoseInput').value = editData.glucose_level;
+    document.getElementById('readingDate').value = editData.date;
+    document.getElementById('readingTime').value = editData.time;
+    document.getElementById('readingNotes').value = editData.notes || '';
+    document.getElementById('mealTiming').value = editData.meal_timing || '';
+    document.querySelectorAll('.meal-chip').forEach(c => {
+      if (c.textContent.trim() === editData.meal_timing) c.classList.add('active');
+    });
+    onGlucoseInput();
+  } else {
+    document.getElementById('modalTitle').textContent = 'Manual Entry';
+    document.getElementById('saveBtnText').textContent = 'Save Reading';
+  }
+  document.getElementById('readingModal').classList.add('open');
+  setTimeout(()=> document.getElementById('glucoseInput').focus(), 300);
+}
+const closeModal = () => document.getElementById('readingModal').classList.remove('open');
+
+/* ── Delete Confirm ─────────────────────────────────────────── */
+function askDelete(id) { pendingDeleteId = id; document.getElementById('confirmBackdrop').classList.add('open'); }
+const closeConfirm = () => { pendingDeleteId=null; document.getElementById('confirmBackdrop').classList.remove('open'); }
+document.getElementById('btnConfirmDelete').addEventListener('click', async ()=>{
+  if (pendingDeleteId===null) return;
+  const id = pendingDeleteId; closeConfirm();
+  try {
+    const res  = await fetch(`/api/glucose/delete/${id}`, {method:'POST'});
+    const data = await res.json();
+    if (data.success) { showToast('Reading deleted.','info'); await loadReadings(); }
+    else              showToast(data.error||'Delete failed.','error');
+  } catch(e) { showToast('Network error.','error'); }
+});
+
+/* ── Save Reading ───────────────────────────────────────────── */
+async function saveReading() {
+  const glucose = document.getElementById('glucoseInput').value.trim();
+  const date    = document.getElementById('readingDate').value;
+  const time    = document.getElementById('readingTime').value;
+  const notes   = document.getElementById('readingNotes').value.trim();
+  const meal    = document.getElementById('mealTiming').value;
+  const editId  = document.getElementById('editId').value;
+
+  if (!glucose)                                   { showValidation('Please enter a glucose level.'); document.getElementById('glucoseInput').focus(); return; }
+  const gNum = parseFloat(glucose);
+  if (isNaN(gNum)||gNum<20||gNum>600)             { showValidation('Please enter a valid value between 20 – 600 mg/dL.'); return; }
+  if (!date)                                      { showValidation('Please select a date.'); return; }
+  if (!time)                                      { showValidation('Please select a time.'); return; }
+
+  const btn = document.getElementById('btnSave');
+  btn.disabled = true;
+  document.getElementById('saveSpinner').style.display = 'block';
+  document.getElementById('saveIcon').style.display    = 'none';
+  document.getElementById('saveBtnText').textContent   = editId ? 'Updating…' : 'Saving…';
+
+  const url     = editId ? `/api/glucose/update/${editId}` : '/api/glucose/add';
+  const payload = { glucose_level: gNum, date, time, notes, meal_timing: meal };
+
+  try {
+    const res  = await fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+    const data = await res.json();
+    if (data.success) {
+      closeModal();
+      showToast(editId ? '✓ Reading updated!' : '✓ Reading saved!', 'success');
+      await loadReadings();
+    } else {
+      showValidation(data.error || 'Failed to save. Please try again.');
+    }
+  } catch(e) {
+    console.error('Save error:', e);
+    showValidation('Network error — check your connection and try again.');
+  } finally {
+    btn.disabled = false;
+    document.getElementById('saveSpinner').style.display = 'none';
+    document.getElementById('saveIcon').style.display    = 'inline';
+    document.getElementById('saveBtnText').textContent   = editId ? 'Update Reading' : 'Save Reading';
+  }
+}
+
+/* ── Load Readings ──────────────────────────────────────────── */
+async function loadReadings() {
+  try {
+    const res  = await fetch('/api/glucose/list');
+    const data = await res.json();
+    if (data.success) {
+      allReadings = data.readings;
+      renderTable(allReadings); renderStats(allReadings);
+      renderChart(allReadings); renderRecent(allReadings);
+    } else { showToast(data.error||'Could not load records.','error'); }
+  } catch(e) { console.error('Load error:',e); showToast('Failed to load records.','error'); }
+}
+
+/* ── Render Table ───────────────────────────────────────────── */
+function renderTable(readings) {
+  const tbody = document.getElementById('tableBody');
+  const empty = document.getElementById('emptyState');
+  const count = document.getElementById('tableCount');
+  if (!readings.length) {
+    tbody.innerHTML = ''; empty.style.display='block'; count.textContent=''; return;
+  }
+  empty.style.display = 'none';
+  count.textContent = `${readings.length} record${readings.length!==1?'s':''}`;
+  tbody.innerHTML = readings.map((r,i) => {
+    const dt    = new Date(r.reading_time);
+    const isoD  = dt.toISOString().split('T')[0];
+    const isoT  = dt.toTimeString().slice(0,5);
+    const ep    = JSON.stringify({ id:r.id, glucose_level:r.glucose_level, date:isoD, time:isoT, notes:r.notes||'', meal_timing:r.meal_timing||'' }).replace(/'/g,"&#39;");
+    const noteTd = r.notes
+      ? `<span title="${r.notes.replace(/"/g,'&quot;')}" style="color:var(--text-sub);font-style:italic">${r.notes.length>34?r.notes.slice(0,34)+'…':r.notes}</span>`
+      : `<span style="color:var(--text-muted)">—</span>`;
+    return `<tr>
+      <td style="color:var(--text-muted);font-size:13px">${i+1}</td>
+      <td><span class="td-glucose">${r.glucose_level}</span><span class="td-unit"> mg/dL</span></td>
+      <td>${badgeHtml(r.glucose_level,r.status)}</td>
+      <td>${fmtDate(r.reading_time)}</td>
+      <td>${fmtTime(r.reading_time)}</td>
+      <td>${r.meal_timing||'<span style="color:var(--text-muted)">—</span>'}</td>
+      <td>${noteTd}</td>
+      <td style="white-space:nowrap">
+        <button class="btn-edit" onclick='openModal(${ep})'><i class="fa fa-pen"></i> Edit</button>
+        <button class="btn-delete" onclick="askDelete(${r.id})"><i class="fa fa-trash"></i></button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+/* ── Render Stats ───────────────────────────────────────────── */
+function renderStats(readings) {
+  if (!readings.length) { ['sTotalReadings','sAvgGlucose','sHighCount','sLowCount','sNormalCount'].forEach(id=>document.getElementById(id).textContent='0'); return; }
+  const levels = readings.map(r=>parseFloat(r.glucose_level));
+  const avg    = (levels.reduce((a,b)=>a+b,0)/levels.length).toFixed(1);
+  document.getElementById('sTotalReadings').textContent = readings.length;
+  document.getElementById('sAvgGlucose').textContent    = avg;
+  document.getElementById('sHighCount').textContent     = levels.filter(v=>v>140).length;
+  document.getElementById('sLowCount').textContent      = levels.filter(v=>v<70).length;
+  document.getElementById('sNormalCount').textContent   = levels.filter(v=>v>=70&&v<=140).length;
+}
+
+/* ── Render Recent ──────────────────────────────────────────── */
+function renderRecent(readings) {
+  const wrap = document.getElementById('recentStrip');
+  if (!readings.length) { wrap.innerHTML=''; return; }
+  wrap.innerHTML = readings.slice(0,5).map(r => {
+    const lvl = parseFloat(r.glucose_level);
+    const col  = lvl<70?'#1d4ed8':lvl<=140?'#16a34a':'#dc2626';
+    const bdr  = lvl<70?'#3b82f6':lvl<=140?'#22c55e':'#ef4444';
+    return `<div class="recent-pill" style="border-left-color:${bdr}">
+      <div class="rp-val" style="color:${col}">${r.glucose_level} <span style="font-size:13px;font-weight:500">mg/dL</span></div>
+      <div class="rp-time"><i class="fa fa-clock"></i> ${fmtDate(r.reading_time)}, ${fmtTime(r.reading_time)}</div>
+      ${r.meal_timing?`<div class="rp-meal">${r.meal_timing}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+/* ── Render Chart ───────────────────────────────────────────── */
+function renderChart(readings) {
+  const recent  = [...readings].reverse().slice(-30);
+  const labels  = recent.map(r => { const d=new Date(r.reading_time); return d.toLocaleDateString('en-IN',{month:'short',day:'numeric'}); });
+  const values  = recent.map(r => parseFloat(r.glucose_level));
+  const ptClrs  = values.map(v => v<70?'#3b82f6':v<=140?'#22c55e':'#ef4444');
+  if (glucoseChart) glucoseChart.destroy();
+  if (!values.length) return;
+  glucoseChart = new Chart(document.getElementById('glucoseChart'), {
+    type: 'line',
+    data: { labels, datasets:[{ label:'Glucose (mg/dL)', data:values, borderColor:'#a71d31', backgroundColor:'rgba(167,29,49,0.07)', tension:0.38, fill:true, pointBackgroundColor:ptClrs, pointBorderColor:ptClrs, pointBorderWidth:2, pointRadius:5, pointHoverRadius:8 }] },
+    options: {
+      responsive:true,
+      plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:ctx=>{ const v=ctx.raw; return ` ${v} mg/dL — ${v<70?'Low':v<=140?'Normal':'High'}`; } } } },
+      scales:{
+        y:{ suggestedMin:50, suggestedMax:250, grid:{color:'rgba(0,0,0,0.04)'}, ticks:{color:'#9a7070',font:{size:12}} },
+        x:{ grid:{display:false}, ticks:{color:'#9a7070',maxRotation:40,font:{size:11}} }
+      }
+    }
+  });
+}
+
+/* ── Filter ─────────────────────────────────────────────────── */
+function filterTable() {
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  const status = document.getElementById('filterStatus').value;
+  const date   = document.getElementById('filterDate').value;
+  const f = allReadings.filter(r => {
+    const ms = !search || [(r.notes||''),(r.meal_timing||''),(r.status||'')].some(v=>v.toLowerCase().includes(search));
+    const mst= !status || (r.status||glucoseStatus(r.glucose_level))===status;
+    const md = !date   || r.reading_time.startsWith(date);
+    return ms&&mst&&md;
+  });
+  renderTable(f);
+  document.getElementById('tableCount').textContent = f.length < allReadings.length ? `${f.length} of ${allReadings.length} records` : `${allReadings.length} record${allReadings.length!==1?'s':''}`;
+}
+function clearFilters() {
+  document.getElementById('searchInput').value=''; document.getElementById('filterStatus').value=''; document.getElementById('filterDate').value='';
+  renderTable(allReadings);
+  document.getElementById('tableCount').textContent = `${allReadings.length} record${allReadings.length!==1?'s':''}`;
+}
+
+/* ── Event listeners ────────────────────────────────────────── */
+document.getElementById('readingModal').addEventListener('click',function(e){ if(e.target===this)closeModal(); });
+document.getElementById('confirmBackdrop').addEventListener('click',function(e){ if(e.target===this)closeConfirm(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeModal(); closeConfirm(); } });
+
+/* ── Boot ───────────────────────────────────────────────────── */
+loadReadings();
+</script>
+</body>
+</html>

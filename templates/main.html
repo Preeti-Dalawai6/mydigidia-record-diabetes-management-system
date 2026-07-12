@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MyDigiDia Record</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+html{scroll-behavior:smooth;}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif;}
+body{background:#fdf7f7;}
+
+nav{width:100%;background:linear-gradient(90deg,#7b1e2b,#b23a48);padding:18px 50px;display:flex;justify-content:space-between;align-items:center;color:#fff;box-shadow:0 4px 15px rgba(0,0,0,0.08);position:sticky;top:0;z-index:100;}
+nav .logo{font-size:26px;font-weight:bold;display:flex;align-items:center;gap:8px;}
+nav ul{display:flex;list-style:none;gap:24px;}
+nav ul li a{text-decoration:none;color:white;font-size:16px;padding:7px 13px;border-radius:9px;transition:0.2s;display:flex;align-items:center;gap:6px;}
+nav ul li a:hover,nav ul li a.active{background:rgba(255,255,255,0.2);}
+
+.welcome-strip{display:flex;justify-content:flex-end;padding:8px 50px;background:#f9f5f5;}
+.welcome-badge{background:#7b1e2b;color:#fff;font-size:15px;font-weight:600;padding:7px 18px;border-radius:6px;display:flex;align-items:center;gap:8px;}
+
+.hero{display:flex;justify-content:space-between;align-items:center;padding:70px 10%;min-height:78vh;gap:40px;}
+.hero-text{width:50%;}
+.hero-text h1{font-size:52px;color:#641220;margin-bottom:20px;line-height:1.15;}
+.hero-text h1 span{color:#a71d31;}
+.hero-text p{font-size:18px;color:#555;margin-bottom:30px;line-height:1.75;}
+.hero-text .btns{display:flex;gap:14px;flex-wrap:wrap;}
+.hero-text .btns a{text-decoration:none;padding:14px 30px;border-radius:11px;font-size:16px;font-weight:600;transition:0.22s;}
+.btn-primary{background:#a71d31;color:#fff;box-shadow:0 4px 16px rgba(167,29,49,0.32);}
+.btn-primary:hover{background:#7b1e2b;transform:translateY(-2px);}
+.btn-secondary{border:2px solid #a71d31;color:#a71d31;}
+.btn-secondary:hover{background:#a71d31;color:white;}
+.hero-image{width:44%;}
+.hero-image img{width:100%;border-radius:22px;box-shadow:0 16px 48px rgba(0,0,0,0.14);}
+
+.features{padding:50px 8%;display:flex;flex-wrap:wrap;justify-content:center;gap:22px;}
+.features-title{width:100%;text-align:center;font-size:30px;font-weight:700;color:#7b1e2b;margin-bottom:10px;}
+.features-sub{width:100%;text-align:center;color:#888;margin-bottom:10px;}
+
+.feature-box{background:#fff;padding:30px 20px;text-align:center;border-radius:18px;box-shadow:0 6px 24px rgba(122,31,43,0.10);transition:0.25s;width:210px;cursor:pointer;position:relative;overflow:hidden;}
+.feature-box::before{content:'';position:absolute;bottom:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#7b1e2b,#b23a48);transform:scaleX(0);transition:transform 0.25s;}
+.feature-box:hover{transform:translateY(-8px);box-shadow:0 12px 36px rgba(122,31,43,0.16);}
+.feature-box:hover::before{transform:scaleX(1);}
+.feature-box i{font-size:36px;color:#a71d31;margin-bottom:14px;}
+.feature-box h3{color:#641220;margin-bottom:8px;font-size:16px;}
+.feature-box p{font-size:13px;color:#777;line-height:1.5;}
+
+footer{margin-top:60px;background:#641220;color:#fff;text-align:center;padding:22px;}
+
+@media(max-width:900px){
+    .hero{flex-direction:column;text-align:center;padding:40px 6%;}
+    .hero-text,.hero-image{width:100%;}
+    .hero-text h1{font-size:36px;}
+    .hero-text .btns{justify-content:center;}
+    nav{padding:14px 20px;}
+    nav ul{flex-wrap:wrap;justify-content:center;gap:10px;}
+    nav ul li a span{display:none;}
+    .welcome-strip{padding:8px 20px;}
+}
+</style>
+</head>
+<body>
+
+<nav id="top">
+    <div class="logo"><i class="fa-solid fa-heart-pulse"></i> MyDigiDia Record</div>
+    <ul>
+        <li><a href="#top" class="active"><i class="fa fa-home"></i><span>Home</span></a></li>
+        {% if session.get('user_id') %}
+            <li><a href="/record"><i class="fa fa-folder"></i><span>Records</span></a></li>
+            <li><a href="/reports_page"><i class="fa fa-chart-line"></i><span>Reports</span></a></li>
+            <li><a href="/diet"><i class="fa fa-utensils"></i><span>Diet</span></a></li>
+            <li><a href="/settings"><i class="fa fa-gear"></i><span>Settings</span></a></li>
+            <li><a href="/profile"><i class="fa fa-circle-user"></i><span>Profile</span></a></li>
+        {% else %}
+            <li><a href="/login_page"><i class="fa fa-folder"></i><span>Records</span></a></li>
+            <li><a href="/login_page"><i class="fa fa-chart-line"></i><span>Reports</span></a></li>
+            <li><a href="/login_page"><i class="fa fa-utensils"></i><span>Diet</span></a></li>
+            <li><a href="/login_page"><i class="fa fa-gear"></i><span>Settings</span></a></li>
+            <li><a href="/login_page"><i class="fa fa-circle-user"></i><span>User</span></a></li>
+        {% endif %}
+        <li><a href="/help"><i class="fa fa-circle-question"></i><span>Help</span></a></li>
+        {% if session.get('user') %}
+            <li><a href="/logout"><i class="fa fa-sign-out-alt"></i><span>Logout</span></a></li>
+        {% else %}
+            <li><a href="/login_page"><i class="fa fa-user"></i><span>Login</span></a></li>
+        {% endif %}
+    </ul>
+</nav>
+
+{% if user %}
+<div class="welcome-strip">
+    <div class="welcome-badge"><i class="fa fa-user"></i> Welcome, {{ session['user'] }}</div>
+</div>
+{% endif %}
+
+<section class="hero">
+    <div class="hero-text">
+        <h1>Welcome to <span>Medical Record System</span></h1>
+        <p>Manage diabetes records efficiently with a secure and user-friendly platform. Track patient history, reports, health graphs, and analytics all in one place.</p>
+        <div class="btns">
+            {% if session.get('user') %}
+                <a href="/record" class="btn-primary"><i class="fa fa-folder-open"></i> My Records</a>
+                <a href="/reports_page" class="btn-secondary"><i class="fa fa-chart-bar"></i> View Reports</a>
+            {% else %}
+                <a href="/login_page" class="btn-primary"><i class="fa fa-right-to-bracket"></i> Login</a>
+                <a href="/learn_more" class="btn-secondary"><i class="fa fa-circle-info"></i> Learn More</a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="hero-image">
+        <img src="https://images.pexels.com/photos/7653093/pexels-photo-7653093.jpeg" alt="Healthcare">
+    </div>
+</section>
+
+<section class="features">
+    <div class="features-title">Everything You Need</div>
+    <div class="features-sub">A complete healthcare management platform for diabetes tracking</div>
+
+    <div class="feature-box" onclick="window.location.href='#top'">
+        <i class="fa fa-house"></i>
+        <h3>Home</h3>
+        <p>Quick overview of your medical dashboard.</p>
+    </div>
+    <div class="feature-box" onclick="window.location.href='{% if session.get('user_id') %}/record{% else %}/login_page{% endif %}'">
+        <i class="fa fa-file-medical"></i>
+        <h3>Records</h3>
+        <p>Maintain all diabetes glucose readings.</p>
+    </div>
+    <div class="feature-box" onclick="window.location.href='{% if session.get('user_id') %}/reports_page{% else %}/login_page{% endif %}'">
+        <i class="fa fa-chart-column"></i>
+        <h3>Reports</h3>
+        <p>Generate analytics and detailed reports.</p>
+    </div>
+    <div class="feature-box" onclick="window.location.href='{% if session.get('user_id') %}/diet{% else %}/login_page{% endif %}'">
+        <i class="fa fa-utensils"></i>
+        <h3>Diet Chart</h3>
+        <p>Personalized diet plan for better health.</p>
+    </div>
+    <div class="feature-box" onclick="window.location.href='{% if session.get('user_id') %}/settings{% else %}/login_page{% endif %}'">
+        <i class="fa fa-gear"></i>
+        <h3>Settings</h3>
+        <p>Customize system preferences easily.</p>
+    </div>
+    <div class="feature-box" onclick="window.location.href='{% if session.get('user_id') %}/profile{% else %}/login_page{% endif %}'">
+        <i class="fa fa-user-doctor"></i>
+        <h3>Profile</h3>
+        <p>Manage your account and health info.</p>
+    </div>
+    <div class="feature-box" onclick="window.location.href='/help'">
+        <i class="fa fa-headset"></i>
+        <h3>Help</h3>
+        <p>Support and assistance available 24/7.</p>
+    </div>
+    {% if not session.get('user') %}
+    <div class="feature-box" onclick="window.location.href='/login_page'">
+        <i class="fa fa-right-to-bracket"></i>
+        <h3>Login</h3>
+        <p>Secure access for authorized users.</p>
+    </div>
+    {% endif %}
+</section>
+
+<footer>
+    <p><i class="fa fa-heart-pulse"></i> MyDigiDia Record &mdash; Blood Sugar Management System | Healthcare &copy; 2026</p>
+</footer>
+
+</body>
+</html>

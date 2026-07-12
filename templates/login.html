@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login – MyDigiDia</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family:"Segoe UI",sans-serif;
+    }
+
+    body{
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+
+      background:
+      linear-gradient(rgba(253,247,247,0.95), rgba(253,247,247,0.95)),
+      url("/static/medical-bg.jpg") center/cover no-repeat;
+    }
+
+    /* BACK BUTTON */
+    .back-btn{
+      position:fixed;
+      top:20px;
+      left:20px;
+
+      background:white;
+
+      border:none;
+      padding:10px 14px;
+
+      border-radius:8px;
+
+      font-size:15px;
+      cursor:pointer;
+
+      box-shadow:0 4px 12px rgba(123,30,43,0.15);
+
+      color:#641220;
+      text-decoration:none;
+
+      transition:0.3s;
+    }
+
+    .back-btn:hover{
+      background:#fdf2f2;
+    }
+
+    /* CARD */
+    .card{
+      width:100%;
+      max-width:420px;
+
+      padding:35px;
+
+      background:white;
+
+      border-radius:18px;
+
+      box-shadow:0 20px 45px rgba(123,30,43,0.18);
+
+      border-top:6px solid #a71d31;
+    }
+
+    h2{
+      text-align:center;
+      margin-bottom:20px;
+      color:#641220;
+      font-size:30px;
+    }
+
+    /* FLASH */
+    .flash{
+      padding:12px;
+      border-radius:8px;
+      margin-bottom:15px;
+      text-align:center;
+      font-weight:600;
+    }
+
+    .flash.success{
+      background:#dcfce7;
+      color:#15803d;
+    }
+
+    .flash.error{
+      background:#fee2e2;
+      color:#b91c1c;
+    }
+
+    /* TOGGLE */
+    .toggle{
+      display:flex;
+      border:1px solid #e5e7eb;
+      border-radius:8px;
+      overflow:hidden;
+      margin-bottom:18px;
+    }
+
+    .toggle button{
+      flex:1;
+      padding:10px;
+
+      border:none;
+      cursor:pointer;
+
+      background:#f9fafb;
+
+      font-weight:600;
+      font-size:14px;
+
+      transition:0.3s;
+
+      color:#555;
+    }
+
+    .toggle button.active{
+      background:#a71d31;
+      color:white;
+    }
+
+    label{
+      font-weight:600;
+      font-size:14px;
+      color:#641220;
+    }
+
+    input[type="email"],
+    input[type="text"],
+    input[type="password"]{
+      width:100%;
+
+      padding:11px 12px;
+
+      margin:6px 0 14px;
+
+      border:1px solid #ddd;
+
+      border-radius:8px;
+
+      font-size:14px;
+
+      outline:none;
+
+      transition:0.3s;
+    }
+
+    input:focus{
+      border-color:#a71d31;
+      box-shadow:0 0 0 3px rgba(167,29,49,0.08);
+    }
+
+    /* PASSWORD BOX */
+    .password-box{
+      position:relative;
+    }
+
+    .password-box input{
+      padding-right:38px;
+    }
+
+    .password-box i{
+      position:absolute;
+      right:12px;
+      top:50%;
+      transform:translateY(-50%);
+      cursor:pointer;
+      color:#9ca3af;
+    }
+
+    /* OPTIONS */
+    .options{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+
+      font-size:13px;
+
+      margin-bottom:4px;
+    }
+
+    .remember{
+      display:flex;
+      align-items:center;
+      gap:6px;
+    }
+
+    .remember input{
+      width:auto;
+      margin:0;
+    }
+
+    a{
+      color:#a71d31;
+      text-decoration:none;
+      font-weight:500;
+    }
+
+    a:hover{
+      text-decoration:underline;
+    }
+
+    /* LOGIN BUTTON */
+    .submit-btn{
+      width:100%;
+
+      padding:13px;
+
+      border:none;
+      border-radius:10px;
+
+      font-size:16px;
+      font-weight:600;
+
+      cursor:pointer;
+
+      margin-top:14px;
+
+      background:#a71d31;
+      color:white;
+
+      transition:0.3s;
+    }
+
+    .submit-btn:hover{
+      background:#8f1728;
+    }
+
+    /* BOTTOM TEXT */
+    .text-link{
+      text-align:center;
+      margin-top:14px;
+      font-size:14px;
+      color:#555;
+    }
+  </style>
+</head>
+
+<body>
+
+<a href="/" class="back-btn">
+  <i class="fa fa-arrow-left"></i> Back
+</a>
+
+<div class="card">
+
+  <h2>Login</h2>
+
+  <!-- Flash Messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+      <div class="flash {{ category }}">{{ message }}</div>
+    {% endfor %}
+  {% endwith %}
+
+  <!-- Toggle -->
+  <div class="toggle">
+    <button class="active" id="emailBtn" onclick="showEmail()">Email</button>
+    <button id="phoneBtn" onclick="showPhone()">Phone</button>
+  </div>
+
+  <!-- Email Login -->
+  <div id="emailLogin">
+    <form method="POST" action="/login" autocomplete="off">
+
+      <label>Email</label>
+      <input type="email" name="email" placeholder="Enter your email" autocomplete="off" autocapitalize="none" spellcheck="false" required>
+
+      <label>Password</label>
+
+      <div class="password-box">
+        <input type="password" id="password" name="password" placeholder="Enter your password" autocomplete="new-password" required>
+
+        <i class="fa fa-eye" onclick="togglePassword('password', this)"></i>
+      </div>
+
+      <div class="options">
+
+        <label class="remember">
+          <input type="checkbox" name="remember" autocomplete="off"> Remember me
+        </label>
+
+        <a href="/forgot_password">Forgot Password?</a>
+
+      </div>
+
+      <button type="submit" class="submit-btn">
+        Login
+      </button>
+
+    </form>
+  </div>
+
+  <!-- Phone Login -->
+  <div id="phoneLogin" style="display:none;">
+
+    <form method="POST" action="/phone_login" autocomplete="off">
+
+      <label>Phone Number</label>
+
+      <input type="text" name="phone" placeholder="Enter phone number" autocomplete="off" inputmode="tel" required>
+
+      <label>Password</label>
+
+      <div class="password-box">
+
+        <input type="password" id="phone_password" name="password" placeholder="Enter your password" autocomplete="new-password" required>
+
+        <i class="fa fa-eye" onclick="togglePassword('phone_password', this)"></i>
+
+      </div>
+
+      <button type="submit" class="submit-btn">
+        Login
+      </button>
+
+    </form>
+
+  </div>
+
+  <div class="text-link">
+    Not registered?
+    <a href="/signup">Create Account</a>
+  </div>
+
+</div>
+
+<script>
+function showEmail() {
+  document.getElementById("emailLogin").style.display = "block";
+  document.getElementById("phoneLogin").style.display = "none";
+
+  document.getElementById("emailBtn").classList.add("active");
+  document.getElementById("phoneBtn").classList.remove("active");
+}
+
+function showPhone() {
+  document.getElementById("emailLogin").style.display = "none";
+  document.getElementById("phoneLogin").style.display = "block";
+
+  document.getElementById("phoneBtn").classList.add("active");
+  document.getElementById("emailBtn").classList.remove("active");
+}
+
+function togglePassword(id, icon) {
+  const input = document.getElementById(id);
+
+  if (input.type === "password") {
+    input.type = "text";
+    icon.classList.replace("fa-eye", "fa-eye-slash");
+  } else {
+    input.type = "password";
+    icon.classList.replace("fa-eye-slash", "fa-eye");
+  }
+}
+</script>
+
+</body>
+</html>

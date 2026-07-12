@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Learn More - MyDigiDia Record</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#fdf7f7;color:#333;overflow-x:hidden;}
+
+/* NAVBAR — matches main.html exactly */
+nav{width:100%;background:linear-gradient(90deg,#7b1e2b,#b23a48);padding:18px 50px;display:flex;justify-content:space-between;align-items:center;color:#fff;box-shadow:0 4px 15px rgba(0,0,0,0.08);position:sticky;top:0;z-index:1000;}
+nav .logo{font-size:26px;font-weight:bold;display:flex;align-items:center;gap:8px;text-decoration:none;color:white;}
+nav ul{display:flex;list-style:none;gap:24px;}
+nav ul li a{text-decoration:none;color:white;font-size:16px;padding:7px 13px;border-radius:9px;transition:0.2s;display:flex;align-items:center;gap:6px;}
+nav ul li a:hover,nav ul li a.active{background:rgba(255,255,255,0.2);}
+
+/* HERO */
+.lm-hero{background:linear-gradient(135deg,#4a0e1a 0%,#7b1e2b 40%,#a71d31 100%);padding:80px 8% 100px;position:relative;overflow:hidden;}
+.lm-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 70% 50%,rgba(255,255,255,0.06) 0%,transparent 70%);pointer-events:none;}
+.lm-hero::after{content:'';position:absolute;bottom:-2px;left:0;right:0;height:70px;background:#fdf7f7;clip-path:ellipse(55% 100% at 50% 100%);}
+.hero-inner{position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:50px;max-width:1200px;margin:0 auto;}
+.hero-left{flex:1;}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);color:#ffd6dc;padding:6px 16px;border-radius:30px;font-size:13px;font-weight:600;margin-bottom:22px;letter-spacing:0.3px;}
+.lm-hero h1{font-size:clamp(30px,5vw,52px);color:#fff;font-weight:800;line-height:1.15;margin-bottom:16px;}
+.lm-hero h1 span{color:#ffd6dc;}
+.lm-hero p{color:rgba(255,255,255,0.80);font-size:17px;line-height:1.75;max-width:540px;margin-bottom:32px;}
+.hero-btns{display:flex;gap:14px;flex-wrap:wrap;}
+.hbtn{text-decoration:none;padding:14px 28px;border-radius:12px;font-size:15px;font-weight:700;transition:all 0.25s;display:inline-flex;align-items:center;gap:8px;}
+.hbtn-primary{background:white;color:#a71d31;}
+.hbtn-primary:hover{background:#fde8eb;transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.15);}
+.hbtn-outline{border:2px solid rgba(255,255,255,0.5);color:white;}
+.hbtn-outline:hover{background:rgba(255,255,255,0.15);transform:translateY(-2px);}
+/* Hero right — animated stat cards */
+.hero-right{display:grid;grid-template-columns:1fr 1fr;gap:14px;flex-shrink:0;width:320px;}
+.hstat{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.18);border-radius:16px;padding:20px 16px;backdrop-filter:blur(10px);text-align:center;transition:all 0.3s;}
+.hstat:hover{background:rgba(255,255,255,0.18);transform:translateY(-4px);}
+.hstat-num{font-size:28px;font-weight:800;color:white;}
+.hstat-label{font-size:12px;color:rgba(255,255,255,0.75);margin-top:4px;}
+.hstat i{font-size:22px;color:rgba(255,255,255,0.7);margin-bottom:8px;display:block;}
+
+/* SECTION */
+.section-wrap{max-width:1200px;margin:0 auto;padding:0 5%;}
+.sec-title{text-align:center;margin-bottom:50px;}
+.sec-title h2{font-size:clamp(24px,3vw,36px);color:#641220;font-weight:800;margin-bottom:10px;}
+.sec-title p{color:#777;font-size:16px;max-width:560px;margin:0 auto;}
+.sec-line{width:60px;height:4px;background:linear-gradient(90deg,#a71d31,#e05269);border-radius:4px;margin:12px auto 0;}
+
+/* OVERVIEW CARDS */
+.overview-section{padding:80px 0 60px;}
+.overview-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;}
+.ov-card{background:white;border-radius:22px;padding:34px 26px;box-shadow:0 4px 24px rgba(122,31,43,0.07);border:1px solid rgba(167,29,49,0.07);transition:all 0.3s;position:relative;overflow:hidden;}
+.ov-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#7b1e2b,#e05269);transform:scaleX(0);transform-origin:left;transition:transform 0.3s;}
+.ov-card:hover{transform:translateY(-10px);box-shadow:0 18px 50px rgba(122,31,43,0.14);}
+.ov-card:hover::after{transform:scaleX(1);}
+.ov-icon{width:64px;height:64px;border-radius:18px;display:flex;align-items:center;justify-content:center;margin-bottom:20px;transition:all 0.3s;}
+.ov-card:hover .ov-icon{transform:scale(1.1) rotate(-4deg);}
+.ov-card:nth-child(1) .ov-icon{background:linear-gradient(135deg,#fde8eb,#fdf0f2);} .ov-card:nth-child(1) .ov-icon i{color:#a71d31;}
+.ov-card:nth-child(2) .ov-icon{background:linear-gradient(135deg,#e0f0ff,#d0e8ff);} .ov-card:nth-child(2) .ov-icon i{color:#2563eb;}
+.ov-card:nth-child(3) .ov-icon{background:linear-gradient(135deg,#dcfce7,#d1fae5);} .ov-card:nth-child(3) .ov-icon i{color:#16a34a;}
+.ov-card:nth-child(4) .ov-icon{background:linear-gradient(135deg,#fef9c3,#fef08a);} .ov-card:nth-child(4) .ov-icon i{color:#ca8a04;}
+.ov-card:nth-child(5) .ov-icon{background:linear-gradient(135deg,#f3e8ff,#e9d5ff);} .ov-card:nth-child(5) .ov-icon i{color:#7c3aed;}
+.ov-card:nth-child(6) .ov-icon{background:linear-gradient(135deg,#ffedd5,#fed7aa);} .ov-card:nth-child(6) .ov-icon i{color:#ea580c;}
+.ov-icon i{font-size:28px;}
+.ov-card h3{color:#641220;font-size:18px;font-weight:700;margin-bottom:12px;}
+.ov-card p{color:#666;font-size:14px;line-height:1.7;}
+
+/* FEATURES DEEP DIVE */
+.features-section{padding:70px 0;background:linear-gradient(180deg,#fff5f5 0%,#fdf7f7 100%);}
+.features-layout{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;}
+.features-layout.reverse{direction:rtl;}
+.features-layout.reverse>*{direction:ltr;}
+.feature-visual{background:white;border-radius:24px;padding:40px;box-shadow:0 8px 40px rgba(122,31,43,0.1);border:1px solid rgba(167,29,49,0.08);display:flex;flex-direction:column;gap:16px;}
+.fv-row{display:flex;align-items:center;gap:16px;padding:14px;background:#fdf7f7;border-radius:14px;transition:all 0.2s;}
+.fv-row:hover{background:#fde8eb;transform:translateX(4px);}
+.fv-icon{width:44px;height:44px;background:linear-gradient(135deg,#a71d31,#e05269);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.fv-icon i{color:white;font-size:18px;}
+.fv-text h4{font-size:14px;font-weight:700;color:#641220;margin-bottom:2px;}
+.fv-text p{font-size:12px;color:#888;line-height:1.4;}
+.feature-content{}
+.feature-content .fc-tag{display:inline-flex;align-items:center;gap:6px;background:#fde8eb;color:#a71d31;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;margin-bottom:18px;}
+.feature-content h2{font-size:clamp(22px,3vw,32px);color:#641220;font-weight:800;margin-bottom:14px;line-height:1.25;}
+.feature-content p{color:#666;font-size:15px;line-height:1.8;margin-bottom:20px;}
+.feature-content ul{list-style:none;display:flex;flex-direction:column;gap:10px;}
+.feature-content ul li{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:#555;line-height:1.55;}
+.feature-content ul li i{color:#a71d31;margin-top:2px;flex-shrink:0;}
+.fc-btn{display:inline-flex;align-items:center;gap:8px;margin-top:22px;background:linear-gradient(135deg,#a71d31,#c0392b);color:white;text-decoration:none;padding:13px 26px;border-radius:12px;font-size:14px;font-weight:700;transition:all 0.25s;}
+.fc-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(167,29,49,0.3);}
+
+/* HOW IT WORKS */
+.how-section{padding:70px 0;}
+.steps-track{display:flex;gap:0;position:relative;max-width:900px;margin:0 auto;}
+.steps-track::before{content:'';position:absolute;top:36px;left:10%;right:10%;height:2px;background:linear-gradient(90deg,#a71d31,#e05269);z-index:0;}
+.step-block{flex:1;text-align:center;position:relative;z-index:1;padding:0 10px;}
+.step-circle{width:72px;height:72px;background:white;border:3px solid #a71d31;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;box-shadow:0 4px 16px rgba(167,29,49,0.2);transition:all 0.3s;}
+.step-block:hover .step-circle{background:#a71d31;}
+.step-circle i{font-size:24px;color:#a71d31;transition:color 0.3s;}
+.step-block:hover .step-circle i{color:white;}
+.step-num-badge{position:absolute;top:-6px;right:calc(50% - 42px);background:#a71d31;color:white;width:22px;height:22px;border-radius:50%;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;}
+.step-block h4{color:#641220;font-weight:700;font-size:15px;margin-bottom:6px;}
+.step-block p{color:#888;font-size:12px;line-height:1.5;}
+
+/* DIABETES FACTS */
+.facts-section{padding:70px 0;background:#fff5f5;}
+.facts-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
+.fact-card{background:white;border-radius:18px;padding:28px 20px;text-align:center;box-shadow:0 4px 20px rgba(122,31,43,0.07);transition:all 0.3s;border-top:4px solid #a71d31;}
+.fact-card:nth-child(2){border-top-color:#2563eb;}
+.fact-card:nth-child(3){border-top-color:#16a34a;}
+.fact-card:nth-child(4){border-top-color:#ca8a04;}
+.fact-card:hover{transform:translateY(-6px);box-shadow:0 12px 36px rgba(122,31,43,0.12);}
+.fact-num{font-size:36px;font-weight:800;color:#a71d31;margin-bottom:8px;}
+.fact-card:nth-child(2) .fact-num{color:#2563eb;}
+.fact-card:nth-child(3) .fact-num{color:#16a34a;}
+.fact-card:nth-child(4) .fact-num{color:#ca8a04;}
+.fact-card p{color:#666;font-size:13px;line-height:1.55;}
+
+/* CTA */
+.cta-section{padding:80px 5%;text-align:center;background:linear-gradient(135deg,#641220,#a71d31,#c0392b);position:relative;overflow:hidden;}
+.cta-section::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,rgba(255,255,255,0.06),transparent 70%);pointer-events:none;}
+.cta-section h2{font-size:clamp(26px,4vw,42px);color:white;font-weight:800;margin-bottom:14px;position:relative;}
+.cta-section p{color:rgba(255,255,255,0.8);font-size:17px;max-width:560px;margin:0 auto 32px;position:relative;}
+.cta-btns{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;position:relative;}
+.cta-btn{text-decoration:none;padding:16px 34px;border-radius:14px;font-size:16px;font-weight:700;transition:all 0.25s;display:inline-flex;align-items:center;gap:8px;}
+.cta-white{background:white;color:#a71d31;}
+.cta-white:hover{background:#fde8eb;transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.15);}
+.cta-outline{border:2px solid rgba(255,255,255,0.5);color:white;}
+.cta-outline:hover{background:rgba(255,255,255,0.15);transform:translateY(-2px);}
+
+footer{background:#641220;color:rgba(255,255,255,0.8);text-align:center;padding:22px;font-size:14px;}
+footer a{color:rgba(255,255,255,0.9);text-decoration:none;}
+.scroll-top{position:fixed;bottom:30px;right:30px;background:linear-gradient(135deg,#a71d31,#c0392b);color:white;width:48px;height:48px;border-radius:50%;border:none;cursor:pointer;font-size:18px;box-shadow:0 4px 16px rgba(167,29,49,0.4);opacity:0;transition:all 0.3s;display:flex;align-items:center;justify-content:center;z-index:999;}
+.scroll-top.visible{opacity:1;}
+.scroll-top:hover{transform:translateY(-3px);}
+.reveal{opacity:0;transform:translateY(30px);transition:opacity 0.6s ease,transform 0.6s ease;}
+.reveal.visible{opacity:1;transform:translateY(0);}
+
+@media(max-width:1000px){.overview-grid{grid-template-columns:repeat(2,1fr);}.facts-grid{grid-template-columns:repeat(2,1fr);}.tech-grid{grid-template-columns:repeat(2,1fr);}.features-layout{grid-template-columns:1fr;gap:30px;}.features-layout.reverse{direction:ltr;}.steps-track{flex-wrap:wrap;gap:30px;}.steps-track::before{display:none;}.hero-right{display:none;}}
+@media(max-width:700px){nav{padding:14px 20px;}nav ul{flex-wrap:wrap;justify-content:center;gap:10px;}nav ul li a span{display:none;}.overview-grid{grid-template-columns:1fr;}.facts-grid{grid-template-columns:1fr 1fr;}.tech-grid{grid-template-columns:1fr;}.lm-hero{padding:50px 6% 80px;}}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="logo"><i class="fa-solid fa-heart-pulse"></i> MyDigiDia Record</a>
+  <ul>
+    <li><a href="/"><i class="fa fa-home"></i><span>Home</span></a></li>
+    {% if session.get('user_id') %}
+      <li><a href="/record"><i class="fa fa-folder"></i><span>Records</span></a></li>
+      <li><a href="/reports_page"><i class="fa fa-chart-line"></i><span>Reports</span></a></li>
+      <li><a href="/diet"><i class="fa fa-utensils"></i><span>Diet</span></a></li>
+      <li><a href="/settings"><i class="fa fa-gear"></i><span>Settings</span></a></li>
+      <li><a href="/profile"><i class="fa fa-circle-user"></i><span>Profile</span></a></li>
+    {% else %}
+      <li><a href="/login_page"><i class="fa fa-folder"></i><span>Records</span></a></li>
+      <li><a href="/login_page"><i class="fa fa-chart-line"></i><span>Reports</span></a></li>
+      <li><a href="/login_page"><i class="fa fa-utensils"></i><span>Diet</span></a></li>
+      <li><a href="/login_page"><i class="fa fa-gear"></i><span>Settings</span></a></li>
+      <li><a href="/login_page"><i class="fa fa-circle-user"></i><span>User</span></a></li>
+    {% endif %}
+    <li><a href="/help"><i class="fa fa-circle-question"></i><span>Help</span></a></li>
+    {% if session.get('user') %}
+      <li><a href="/logout"><i class="fa fa-sign-out-alt"></i><span>Logout</span></a></li>
+    {% else %}
+      <li><a href="/login_page"><i class="fa fa-user"></i><span>Login</span></a></li>
+    {% endif %}
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="lm-hero">
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div class="hero-badge"><i class="fa-solid fa-heart-pulse"></i> About MyDigiDia Record</div>
+      <h1>Learn About Our <span>Medical Record System</span></h1>
+      <p>MyDigiDia Record is a comprehensive digital platform designed to help diabetes patients track, analyze, and manage their health data — securely and effortlessly.</p>
+      <div class="hero-btns">
+        <a href="/login_page" class="hbtn hbtn-primary"><i class="fa fa-rocket"></i> Get Started Free</a>
+        <a href="/help" class="hbtn hbtn-outline"><i class="fa fa-circle-question"></i> Help Center</a>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="hstat"><i class="fa-solid fa-notes-medical"></i><div class="hstat-num">∞</div><div class="hstat-label">Records Stored</div></div>
+      <div class="hstat"><i class="fa-solid fa-chart-line"></i><div class="hstat-num">360°</div><div class="hstat-label">Health Analytics</div></div>
+      <div class="hstat"><i class="fa-solid fa-shield-halved"></i><div class="hstat-num">100%</div><div class="hstat-label">Secure &amp; Private</div></div>
+      <div class="hstat"><i class="fa-solid fa-clock"></i><div class="hstat-num">24/7</div><div class="hstat-label">Access Anywhere</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- OVERVIEW CARDS -->
+<section class="overview-section" id="overview">
+  <div class="section-wrap">
+    <div class="sec-title reveal">
+      <h2>What MyDigiDia Record Offers</h2>
+      <p>A complete diabetes management platform built for patients, caregivers, and healthcare providers.</p>
+      <div class="sec-line"></div>
+    </div>
+    <div class="overview-grid">
+      <div class="ov-card reveal">
+        <div class="ov-icon"><i class="fa-solid fa-notes-medical"></i></div>
+        <h3>Record Management</h3>
+        <p>Log blood glucose readings digitally with timestamps, reading types (fasting, post-meal, bedtime), and personal notes for complete medical documentation.</p>
+      </div>
+      <div class="ov-card reveal">
+        <div class="ov-icon"><i class="fa-solid fa-chart-mixed"></i></div>
+        <h3>Health Analytics</h3>
+        <p>Visualize glucose trends with interactive charts. Track HbA1c estimates, time-in-range percentages, and daily averages to understand your health patterns over time.</p>
+      </div>
+      <div class="ov-card reveal">
+        <div class="ov-icon"><i class="fa-solid fa-user-shield"></i></div>
+        <h3>Secure Authentication</h3>
+        <p>Hashed password storage, OTP-based password recovery, and session management ensure only you can access your sensitive medical information.</p>
+      </div>
+      <div class="ov-card reveal">
+        <div class="ov-icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
+        <h3>Real-Time Monitoring</h3>
+        <p>Add glucose readings instantly and receive color-coded feedback — Low, Normal, High — so you always know your current status at a glance.</p>
+      </div>
+      <div class="ov-card reveal">
+        <div class="ov-icon"><i class="fa-solid fa-file-csv"></i></div>
+        <h3>mySugr Import</h3>
+        <p>Seamlessly import your complete glucose history from mySugr or any CSV-based diabetes tracker using our intelligent column-mapping import wizard.</p>
+      </div>
+      <div class="ov-card reveal">
+        <div class="ov-icon"><i class="fa-solid fa-laptop-medical"></i></div>
+        <h3>User-Friendly Interface</h3>
+        <p>A clean, responsive design works beautifully on all devices — desktop, tablet, and mobile — making diabetes management easy for patients of all ages.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURE DEEP DIVE 1 -->
+<section class="features-section" id="features">
+  <div class="section-wrap">
+    <div class="features-layout reveal">
+      <div class="feature-visual">
+        <div class="fv-row"><div class="fv-icon"><i class="fa fa-plus"></i></div><div class="fv-text"><h4>Add Glucose Reading</h4><p>Log fasting, post-meal, or random readings with notes</p></div></div>
+        <div class="fv-row"><div class="fv-icon"><i class="fa fa-pencil"></i></div><div class="fv-text"><h4>Edit Existing Records</h4><p>Correct any entry with full audit history</p></div></div>
+        <div class="fv-row"><div class="fv-icon"><i class="fa fa-trash"></i></div><div class="fv-text"><h4>Delete Records</h4><p>Remove incorrect entries permanently</p></div></div>
+        <div class="fv-row"><div class="fv-icon"><i class="fa fa-file-csv"></i></div><div class="fv-text"><h4>Import from mySugr</h4><p>Bulk import historical glucose data via CSV</p></div></div>
+        <div class="fv-row"><div class="fv-icon"><i class="fa fa-filter"></i></div><div class="fv-text"><h4>Filter &amp; Search</h4><p>Find specific entries by date, time, or reading type</p></div></div>
+      </div>
+      <div class="feature-content">
+        <div class="fc-tag"><i class="fa fa-notes-medical"></i> Record Management</div>
+        <h2>Complete Control Over Your Glucose Data</h2>
+        <p>MyDigiDia's Records module is the heart of your diabetes management. Every reading you log is instantly categorized, timestamped, and stored securely for your lifetime health history.</p>
+        <ul>
+          <li><i class="fa fa-check-circle"></i> Log multiple readings per day with reading type classification</li>
+          <li><i class="fa fa-check-circle"></i> Color-coded status: Low (below 70), Normal (70–140), High (above 140)</li>
+          <li><i class="fa fa-check-circle"></i> Add personal notes like meals, exercise, or symptoms</li>
+          <li><i class="fa fa-check-circle"></i> Full edit and delete capabilities for every record</li>
+          <li><i class="fa fa-check-circle"></i> Bulk import from mySugr CSV in seconds</li>
+        </ul>
+        <a href="/record" class="fc-btn"><i class="fa fa-arrow-right"></i> Go to Records</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURE DEEP DIVE 2 -->
+<section style="padding:70px 0;">
+  <div class="section-wrap">
+    <div class="features-layout reverse reveal">
+      <div class="feature-content">
+        <div class="fc-tag"><i class="fa fa-chart-line"></i> Analytics</div>
+        <h2>Understand Your Health Patterns</h2>
+        <p>The Reports module transforms your raw glucose data into clear, actionable insights — helping you and your doctor make better decisions about your diabetes management.</p>
+        <ul>
+          <li><i class="fa fa-check-circle"></i> Interactive glucose trend charts with date range filtering</li>
+          <li><i class="fa fa-check-circle"></i> HbA1c estimate calculated from your 90-day average</li>
+          <li><i class="fa fa-check-circle"></i> Time-in-range analysis: Low, Normal, and High percentages</li>
+          <li><i class="fa fa-check-circle"></i> Morning, afternoon, evening, and bedtime reading breakdowns</li>
+          <li><i class="fa fa-check-circle"></i> Exportable PDF reports to share with your healthcare provider</li>
+        </ul>
+        <a href="/reports_page" class="fc-btn"><i class="fa fa-arrow-right"></i> View My Reports</a>
+      </div>
+      <div class="feature-visual">
+        <div class="fv-row"><div class="fv-icon"><i class="fa fa-chart-area"></i></div><div class="fv-text"><h4>Trend Line Charts</h4><p>Daily glucose plotted over any date range you choose</p></div></div>
+        <div class="fv-row"><div class="fv-icon"><i class="fa fa-circle-half-stroke"></i></div><div class="fv-text"><h4>Time in Range</h4><p>% of readings in Low / Normal / High zones</p></div></div>
+        <div class="fv-row"><div class="fv-icon"><i class="fa fa-vial"></i></div><div class="fv-text"><h4>HbA1c Estimate</h4><p>90-day average converted to estimated HbA1c %</p></div></div>
+        <div class="fv-row"><div class="fv-icon"><i class="fa fa-sun"></i></div><div class="fv-text"><h4>Time-of-Day Analysis</h4><p>Patterns by morning, afternoon, evening, bedtime</p></div></div>
+        <div class="fv-row"><div class="fv-icon"><i class="fa fa-file-pdf"></i></div><div class="fv-text"><h4>PDF Export</h4><p>Formatted report ready to share with your doctor</p></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-section" id="how">
+  <div class="section-wrap">
+    <div class="sec-title reveal">
+      <h2>How It Works</h2>
+      <p>Getting started with MyDigiDia Record takes less than 2 minutes.</p>
+      <div class="sec-line"></div>
+    </div>
+    <div class="steps-track reveal">
+      <div class="step-block">
+        <div class="step-circle"><i class="fa-solid fa-user-plus"></i><div class="step-num-badge">1</div></div>
+        <h4>Create Account</h4>
+        <p>Sign up with your email and a secure password in 60 seconds.</p>
+      </div>
+      <div class="step-block">
+        <div class="step-circle"><i class="fa-solid fa-id-card"></i><div class="step-num-badge">2</div></div>
+        <h4>Set Up Profile</h4>
+        <p>Add your age, diabetes type, and target glucose range.</p>
+      </div>
+      <div class="step-block">
+        <div class="step-circle"><i class="fa-solid fa-plus"></i><div class="step-num-badge">3</div></div>
+        <h4>Log Readings</h4>
+        <p>Enter your glucose level after each measurement throughout the day.</p>
+      </div>
+      <div class="step-block">
+        <div class="step-circle"><i class="fa-solid fa-chart-line"></i><div class="step-num-badge">4</div></div>
+        <h4>View Analytics</h4>
+        <p>Check your trends, averages, and HbA1c estimate in Reports.</p>
+      </div>
+      <div class="step-block">
+        <div class="step-circle"><i class="fa-solid fa-share-nodes"></i><div class="step-num-badge">5</div></div>
+        <h4>Share with Doctor</h4>
+        <p>Export a PDF report to bring to your next medical appointment.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DIABETES FACTS -->
+<section class="facts-section" id="facts">
+  <div class="section-wrap">
+    <div class="sec-title reveal">
+      <h2>Why Tracking Matters</h2>
+      <p>Understanding the scale of diabetes helps put consistent monitoring in perspective.</p>
+      <div class="sec-line"></div>
+    </div>
+    <div class="facts-grid reveal">
+      <div class="fact-card">
+        <div class="fact-num" data-count="537" data-suffix="M">0M</div>
+        <p>Adults worldwide living with diabetes in 2021 — a number expected to rise to 783 million by 2045.</p>
+      </div>
+      <div class="fact-card">
+        <div class="fact-num" data-count="77" data-suffix="M">0M</div>
+        <p>People in India living with diabetes, making it one of the world's largest diabetic populations.</p>
+      </div>
+      <div class="fact-card">
+        <div class="fact-num" data-count="70" data-suffix="%">0%</div>
+        <p>Reduction in diabetes complications possible with consistent monitoring, healthy diet, and exercise.</p>
+      </div>
+      <div class="fact-card">
+        <div class="fact-num" data-count="2" data-suffix="x">0x</div>
+        <p>People who actively track glucose levels are twice as likely to meet their HbA1c targets compared to those who don't.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- CTA -->
+<section class="cta-section">
+  <h2>Start Managing Your Diabetes Today</h2>
+  <p>Join thousands of patients using MyDigiDia Record to take control of their health — free, secure, and always available.</p>
+  <div class="cta-btns">
+    <a href="/login_page" class="cta-btn cta-white"><i class="fa fa-rocket"></i> Get Started Free</a>
+    <a href="/help" class="cta-btn cta-outline"><i class="fa fa-circle-question"></i> Visit Help Center</a>
+  </div>
+</section>
+
+<footer>
+  <p>&copy; 2025 <strong style="color:white;">MyDigiDia Record</strong> — Empowering Diabetes Management &nbsp;|&nbsp; <a href="/help">Help</a> &nbsp;|&nbsp; <a href="/learn_more">Learn More</a> &nbsp;|&nbsp; <a href="/">Home</a></p>
+</footer>
+<button class="scroll-top" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})"><i class="fa fa-arrow-up"></i></button>
+
+<script>
+window.addEventListener('scroll',function(){document.getElementById('scrollTopBtn').classList.toggle('visible',window.scrollY>400);});
+function animateFactCounts(){
+  document.querySelectorAll('.fact-num[data-count]').forEach(function(el){
+    if(el.dataset.animated === 'true') return;
+    el.dataset.animated = 'true';
+    var target = Number(el.dataset.count);
+    var suffix = el.dataset.suffix || '';
+    var startTime = null;
+    var duration = 1200;
+    function step(timestamp){
+      if(!startTime) startTime = timestamp;
+      var progress = Math.min((timestamp - startTime) / duration, 1);
+      var eased = 1 - Math.pow(1 - progress, 3);
+      var value = Math.round(target * eased);
+      el.textContent = value + suffix;
+      if(progress < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  });
+}
+var obs=new IntersectionObserver(function(entries){entries.forEach(function(entry,i){if(entry.isIntersecting){setTimeout(function(){entry.target.classList.add('visible');if(entry.target.classList.contains('facts-grid')){animateFactCounts();}},i*90);obs.unobserve(entry.target);}});},{threshold:0.1,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(function(el){obs.observe(el);});
+</script>
+</body>
+</html>

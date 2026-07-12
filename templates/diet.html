@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diet Plan - MyDigiDia</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --crimson: #a71d31;
+  --crimson-dark: #7b1e2b;
+  --crimson-deep: #5a1320;
+  --bg: #fdf7f7;
+  --surface: #ffffff;
+  --surface-soft: #fff3f5;
+  --border: #ead1d6;
+  --text: #2d1a1d;
+  --muted: #75545a;
+  --faint: #9f7d84;
+  --green: #15803d;
+  --blue: #1d4ed8;
+  --red: #dc2626;
+  --amber: #b45309;
+  --shadow: 0 12px 36px rgba(122, 30, 43, 0.11);
+  --shadow-sm: 0 6px 18px rgba(122, 30, 43, 0.08);
+  --radius: 8px;
+  --transition: 0.22s ease;
+}
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(167, 29, 49, 0.10), transparent 34%),
+    linear-gradient(180deg, #fffafa 0%, var(--bg) 48%, #fbf0f2 100%);
+  color: var(--text);
+  font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+nav {
+  width: 100%;
+  background: linear-gradient(90deg, #7b1e2b, #b23a48);
+  padding: 18px 50px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #fff;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+nav .logo { font-size: 24px; font-weight: 700; display: flex; align-items: center; }
+nav .logo i { margin-right: 8px; }
+nav ul { display: flex; list-style: none; gap: 24px; }
+nav ul li a {
+  text-decoration: none;
+  color: #fff;
+  font-size: 15px;
+  opacity: 0.9;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+nav ul li a:hover { opacity: 1; color: #ffe5e5; }
+nav ul li a.active { background: rgba(255,255,255,0.18); padding: 5px 12px; border-radius: 20px; opacity: 1; }
+
+.page { width: 92%; max-width: 1180px; margin: 0 auto; padding: 34px 0 70px; }
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(300px, 0.65fr);
+  gap: 22px;
+  align-items: stretch;
+  margin-bottom: 22px;
+}
+
+.hero-main, .summary-card, .panel, .meal-card, .tip-card {
+  background: rgba(255,255,255,0.92);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+
+.hero-main { padding: 34px; position: relative; overflow: hidden; }
+.hero-main::after {
+  content: "";
+  position: absolute;
+  right: 28px;
+  bottom: 20px;
+  width: 190px;
+  height: 190px;
+  background: url("https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=500") center/cover;
+  border-radius: 50%;
+  opacity: 0.16;
+  filter: saturate(0.92);
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--crimson-dark);
+  background: var(--surface-soft);
+  border: 1px solid var(--border);
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.hero h1 {
+  color: var(--crimson-deep);
+  font-size: clamp(30px, 4vw, 48px);
+  line-height: 1.12;
+  max-width: 700px;
+  margin-bottom: 12px;
+  position: relative;
+  z-index: 1;
+}
+
+.hero-copy {
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 1.7;
+  max-width: 650px;
+  position: relative;
+  z-index: 1;
+}
+
+.summary-card { padding: 24px; display: flex; flex-direction: column; justify-content: space-between; min-height: 260px; }
+.summary-label {
+  color: var(--faint);
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-bottom: 10px;
+}
+.reading { display: flex; align-items: flex-end; gap: 8px; margin-bottom: 10px; }
+.reading strong { font-size: 50px; line-height: 0.95; color: var(--status-color); }
+.reading span { color: var(--muted); font-size: 15px; font-weight: 700; padding-bottom: 6px; }
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: var(--status-bg);
+  color: var(--status-color);
+  font-weight: 800;
+  font-size: 13px;
+}
+.range-list { display: grid; gap: 9px; margin-top: 20px; }
+.range-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 13px;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  background: #fff9fa;
+  border: 1px solid #f1dde1;
+}
+.range-row strong { color: var(--text); }
+
+.section-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 18px; margin: 30px 0 16px; }
+.section-head h2 { color: var(--crimson-deep); font-size: 24px; display: flex; align-items: center; gap: 10px; }
+.section-head p { color: var(--faint); font-size: 14px; margin-top: 5px; }
+
+.meal-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.meal-card { padding: 20px; min-height: 260px; transition: var(--transition); position: relative; overflow: hidden; }
+.meal-card::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 4px; background: var(--accent); }
+.meal-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+.meal-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius);
+  display: grid;
+  place-items: center;
+  color: white;
+  background: var(--accent);
+  font-size: 18px;
+  margin-bottom: 16px;
+}
+.meal-card h3 { color: var(--crimson-deep); font-size: 18px; margin-bottom: 4px; }
+.meal-time { color: var(--faint); font-size: 12.5px; font-weight: 700; margin-bottom: 14px; }
+
+.meal-card ul, .panel ul, .tip-card ul { list-style: none; display: grid; gap: 10px; }
+.meal-card li, .panel li {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.45;
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  gap: 8px;
+}
+.meal-card li i, .panel li i { color: var(--accent); padding-top: 3px; }
+
+.content-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 18px; margin-top: 18px; }
+.panel { padding: 22px; }
+.panel-title { display: flex; align-items: center; gap: 10px; color: var(--crimson-deep); font-size: 18px; margin-bottom: 14px; }
+.focus-box {
+  background: var(--status-bg);
+  border: 1px solid color-mix(in srgb, var(--status-color) 28%, white);
+  color: var(--status-color);
+  border-radius: var(--radius);
+  padding: 16px;
+  font-weight: 700;
+  line-height: 1.55;
+  margin-bottom: 16px;
+}
+.portion-table { width: 100%; border-collapse: collapse; }
+.portion-table th, .portion-table td { border-bottom: 1px solid var(--border); padding: 12px 10px; text-align: left; font-size: 14px; }
+.portion-table th { color: var(--crimson-deep); background: #fff9fa; font-size: 12px; text-transform: uppercase; letter-spacing: 0.3px; }
+.portion-table td { color: var(--muted); line-height: 1.45; }
+.portion-table tr:last-child td { border-bottom: 0; }
+
+.tips-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 18px; }
+.tip-card { padding: 18px; }
+.tip-card i { color: var(--crimson); font-size: 20px; margin-bottom: 12px; }
+.tip-card h3 { color: var(--crimson-deep); font-size: 16px; margin-bottom: 8px; }
+.tip-card p { color: var(--muted); font-size: 13.5px; line-height: 1.55; }
+.empty-note, .safety-note {
+  background: #fff7ed;
+  color: var(--amber);
+  border: 1px solid #fed7aa;
+  border-radius: var(--radius);
+  padding: 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-weight: 700;
+  line-height: 1.5;
+  margin-top: 16px;
+}
+footer { color: var(--faint); text-align: center; font-size: 13px; margin-top: 34px; }
+
+@media (max-width: 980px) {
+  nav { padding: 14px 22px; align-items: flex-start; gap: 14px; flex-direction: column; }
+  nav ul { flex-wrap: wrap; }
+  .hero, .content-grid { grid-template-columns: 1fr; }
+  .meal-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tips-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 620px) {
+  .page { width: 94%; padding-top: 20px; }
+  .hero-main, .summary-card, .panel { padding: 20px; }
+  .hero-main::after { display: none; }
+  .meal-grid { grid-template-columns: 1fr; }
+  .section-head { align-items: flex-start; flex-direction: column; }
+  .reading strong { font-size: 42px; }
+}
+</style>
+</head>
+<body
+{% if glucose is none %}
+  style="--status-color: var(--amber); --status-bg: #fff7ed;"
+{% elif glucose < 70 %}
+  style="--status-color: var(--blue); --status-bg: #eff6ff;"
+{% elif glucose <= 140 %}
+  style="--status-color: var(--green); --status-bg: #ecfdf5;"
+{% else %}
+  style="--status-color: var(--red); --status-bg: #fef2f2;"
+{% endif %}
+>
+
+<nav>
+  <div class="logo"><i class="fa-solid fa-heart-pulse"></i> MyDigiDia Record</div>
+  <ul>
+    <li><a href="/"><i class="fa fa-home"></i> Home</a></li>
+    <li><a href="/record"><i class="fa fa-folder"></i> Records</a></li>
+    <li><a href="/reports_page"><i class="fa fa-chart-line"></i> Reports</a></li>
+    <li><a href="/diet" class="active"><i class="fa fa-utensils"></i> Diet</a></li>
+    <li><a href="/settings"><i class="fa fa-gear"></i> Settings</a></li>
+    <li><a href="/profile"><i class="fa fa-circle-user"></i> Profile</a></li>
+    <li><a href="/help"><i class="fa fa-circle-question"></i> Help</a></li>
+    <li><a href="/logout"><i class="fa fa-sign-out-alt"></i> Logout</a></li>
+  </ul>
+</nav>
+
+<main class="page">
+  <section class="hero">
+    <div class="hero-main">
+      <div class="eyebrow"><i class="fa fa-user-doctor"></i> Patient nutrition guidance</div>
+      <h1>Diet plan for {{ user.name if user and user.name else "your health" }}</h1>
+      <p class="hero-copy">
+        A practical diabetes-friendly diet chart based on your latest glucose status. It focuses on balanced portions,
+        steady carbohydrates, protein, fiber, hydration, and safer everyday food choices.
+      </p>
+      {% if diet_type == "No Data" %}
+      <div class="empty-note">
+        <i class="fa fa-circle-info"></i>
+        Add a glucose reading to generate a more specific diet recommendation.
+      </div>
+      {% endif %}
+    </div>
+
+    <aside class="summary-card">
+      <div>
+        <div class="summary-label">Latest glucose</div>
+        <div class="reading">
+          <strong>{{ glucose if glucose is not none else "--" }}</strong>
+          <span>mg/dL</span>
+        </div>
+        <div class="status-pill">
+          {% if glucose is none %}
+            <i class="fa fa-circle-info"></i> No Data
+          {% elif glucose < 70 %}
+            <i class="fa fa-arrow-trend-down"></i> Low Sugar
+          {% elif glucose <= 140 %}
+            <i class="fa fa-check-circle"></i> In Range
+          {% else %}
+            <i class="fa fa-arrow-trend-up"></i> High Sugar
+          {% endif %}
+        </div>
+      </div>
+      <div class="range-list">
+        <div class="range-row"><span>Current plan</span><strong>{{ diet_type }}</strong></div>
+        <div class="range-row"><span>Target range</span><strong>70-140</strong></div>
+        <div class="range-row"><span>Meal goal</span><strong>Fiber + protein</strong></div>
+      </div>
+    </aside>
+  </section>
+
+  <section class="content-grid">
+    <article class="panel">
+      <h2 class="panel-title"><i class="fa fa-bullseye"></i> Nutrition Focus</h2>
+      <div class="focus-box">
+        {% if glucose is none %}
+          No recent glucose reading is available. Follow balanced meals with controlled portions until a fresh reading is recorded.
+        {% elif glucose < 70 %}
+          Your latest reading is low. Correct low sugar first as advised, then choose a balanced snack or meal with carbohydrate plus protein.
+        {% elif glucose <= 140 %}
+          Your latest reading is in range. Continue consistent meal timing, high-fiber foods, and controlled carbohydrate portions.
+        {% else %}
+          Your latest reading is high. Limit sugar, sweet drinks, refined carbs, and large rice portions; choose vegetables, pulses, and lean protein.
+        {% endif %}
+      </div>
+      <ul>
+        <li style="--accent:#15803d"><i class="fa fa-circle-check"></i><span>Use half the plate for non-starchy vegetables like cucumber, greens, beans, cabbage, and cauliflower.</span></li>
+        <li style="--accent:#15803d"><i class="fa fa-circle-check"></i><span>Add protein in each main meal: dal, sprouts, egg, curd, paneer, tofu, fish, or lean chicken.</span></li>
+        <li style="--accent:#15803d"><i class="fa fa-circle-check"></i><span>Keep carbohydrates measured and prefer chapati, millets, oats, dalia, or brown rice.</span></li>
+      </ul>
+    </article>
+
+    <article class="panel">
+      <h2 class="panel-title"><i class="fa fa-scale-balanced"></i> Nutrition Targets</h2>
+      <table class="portion-table">
+        <tr><th>Area</th><th>Guidance</th></tr>
+        <tr><td>Carbohydrates</td><td>Choose slow-digesting carbs and avoid large portions in one meal.</td></tr>
+        <tr><td>Protein</td><td>Include a palm-sized protein portion with lunch and dinner.</td></tr>
+        <tr><td>Fiber</td><td>Eat vegetables, pulses, sprouts, and whole grains daily.</td></tr>
+        <tr><td>Fluids</td><td>Prefer water, buttermilk, or unsweetened drinks.</td></tr>
+      </table>
+    </article>
+  </section>
+
+  <div class="section-head">
+    <div>
+      <h2><i class="fa fa-bowl-food"></i> Daily Patient Diet Chart</h2>
+      <p>Simple food choices for steady energy throughout the day.</p>
+    </div>
+  </div>
+
+  <section class="meal-grid">
+    <article class="meal-card" style="--accent:#a71d31">
+      <div class="meal-icon"><i class="fa fa-mug-hot"></i></div>
+      <h3>Breakfast</h3>
+      <div class="meal-time">7:00 AM - 9:00 AM</div>
+      <ul>
+        <li><i class="fa fa-check"></i><span>Oats, dalia, idli, poha with vegetables, or whole wheat toast.</span></li>
+        <li><i class="fa fa-check"></i><span>Add egg, sprouts, dal, curd, paneer, or tofu.</span></li>
+        <li><i class="fa fa-check"></i><span>Choose unsweetened tea, milk, or green tea.</span></li>
+      </ul>
+    </article>
+
+    <article class="meal-card" style="--accent:#15803d">
+      <div class="meal-icon"><i class="fa fa-bowl-rice"></i></div>
+      <h3>Lunch</h3>
+      <div class="meal-time">12:30 PM - 2:30 PM</div>
+      <ul>
+        <li><i class="fa fa-check"></i><span>2 chapati or a small serving of rice with dal or curd.</span></li>
+        <li><i class="fa fa-check"></i><span>Vegetable curry with salad on half the plate.</span></li>
+        <li><i class="fa fa-check"></i><span>Include beans, fish, lean chicken, paneer, or tofu.</span></li>
+      </ul>
+    </article>
+
+    <article class="meal-card" style="--accent:#b45309">
+      <div class="meal-icon"><i class="fa fa-apple-whole"></i></div>
+      <h3>Snacks</h3>
+      <div class="meal-time">4:00 PM - 6:00 PM</div>
+      <ul>
+        <li><i class="fa fa-check"></i><span>Apple, guava, orange, or papaya portion.</span></li>
+        <li><i class="fa fa-check"></i><span>Roasted chana, nuts, sprouts, or buttermilk.</span></li>
+        <li><i class="fa fa-check"></i><span>Avoid biscuits, sweets, and packaged snacks.</span></li>
+      </ul>
+    </article>
+
+    <article class="meal-card" style="--accent:#1d4ed8">
+      <div class="meal-icon"><i class="fa fa-moon"></i></div>
+      <h3>Dinner</h3>
+      <div class="meal-time">7:30 PM - 9:00 PM</div>
+      <ul>
+        <li><i class="fa fa-check"></i><span>Keep dinner lighter than lunch.</span></li>
+        <li><i class="fa fa-check"></i><span>Vegetable soup, dal, chapati, paneer, tofu, or lean protein.</span></li>
+        <li><i class="fa fa-check"></i><span>Limit rice, fried foods, and late heavy meals.</span></li>
+      </ul>
+    </article>
+  </section>
+
+  <section class="content-grid">
+    <article class="panel">
+      <h2 class="panel-title"><i class="fa fa-circle-check"></i> Prefer More Often</h2>
+      <ul>
+        <li style="--accent:#15803d"><i class="fa fa-check"></i><span>Leafy vegetables, beans, gourds, cauliflower, cucumber, tomato, and salad.</span></li>
+        <li style="--accent:#15803d"><i class="fa fa-check"></i><span>Dal, chana, rajma, sprouts, curd, paneer, tofu, egg, fish, or lean chicken.</span></li>
+        <li style="--accent:#15803d"><i class="fa fa-check"></i><span>Whole grains in measured portions: chapati, oats, millets, dalia, or brown rice.</span></li>
+      </ul>
+    </article>
+
+    <article class="panel">
+      <h2 class="panel-title"><i class="fa fa-ban"></i> Limit Or Avoid</h2>
+      <ul>
+        <li style="--accent:#dc2626"><i class="fa fa-xmark"></i><span>Sugar, sweets, sweet tea, desserts, sweetened juices, and soft drinks.</span></li>
+        <li style="--accent:#dc2626"><i class="fa fa-xmark"></i><span>Bakery foods, fried snacks, chips, noodles, maida, and packaged snacks.</span></li>
+        <li style="--accent:#dc2626"><i class="fa fa-xmark"></i><span>Oversized rice portions, very late dinners, and long gaps without food.</span></li>
+      </ul>
+    </article>
+  </section>
+
+  <section class="tips-grid">
+    <article class="tip-card">
+      <i class="fa fa-plate-wheat"></i>
+      <h3>Plate Method</h3>
+      <p>Fill half the plate with vegetables, one quarter with protein, and one quarter with controlled carbohydrates.</p>
+    </article>
+    <article class="tip-card">
+      <i class="fa fa-clock"></i>
+      <h3>Meal Timing</h3>
+      <p>Eat at regular times and avoid skipping meals, especially if your medicines can lower glucose.</p>
+    </article>
+    <article class="tip-card">
+      <i class="fa fa-person-walking"></i>
+      <h3>After-Meal Walk</h3>
+      <p>A short gentle walk after meals may help glucose control when your doctor says activity is suitable.</p>
+    </article>
+  </section>
+
+  <div class="safety-note">
+    <i class="fa fa-circle-info"></i>
+    <span>This diet guidance is educational and should not replace advice from your doctor or dietitian. Seek medical help for repeated low sugar, very high readings, dizziness, vomiting, chest pain, or severe weakness.</span>
+  </div>
+
+  <footer>
+    <p><i class="fa fa-heart-pulse"></i> MyDigiDia Record - Diet guidance is informational. Follow your doctor's medical advice.</p>
+  </footer>
+</main>
+
+</body>
+</html>
